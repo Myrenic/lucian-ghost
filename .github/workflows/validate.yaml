@@ -42,6 +42,13 @@ jobs:
             exit 1
           fi
 
+      - name: Shell scripts parse
+        run: |
+          set -euo pipefail
+          for script in scripts/*.sh; do
+            sh -n "$script"
+          done
+
       - name: Theme templates are balanced
         run: |
           set -euo pipefail

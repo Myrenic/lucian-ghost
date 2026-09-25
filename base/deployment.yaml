@@ -33,7 +33,7 @@ spec:
         # Stamped by scripts/build-theme.mjs on every build. The theme is
         # unpacked by an initContainer, which only runs when a pod starts - so
         # without this, a new ConfigMap would be applied and never read.
-        checksum/theme: "10870b267a001c5d1daad1c60b59a3e2"
+        checksum/theme: "61457cf17550762d44c0a2d5e6f4e9a5"
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
@@ -49,32 +49,18 @@ spec:
       initContainers:
         - name: install-content
           image: docker.io/library/busybox:1.37
+          # The script itself is gzipped base64 in a ConfigMap: Flux runs
+          # envsubst over this manifest, and a shell script in a block scalar is
+          # a pile of "${...}" for it to substitute away. Nothing here needs a
+          # variable, so nothing here can be substituted.
           command:
             - /bin/sh
             - -c
-            - |
-              set -e
-              theme=/content/themes/lucian
-
-              # The theme is ours and code-owned, so it is replaced wholesale:
-              # a template deleted in the repository should disappear here too.
-              rm -rf "$theme"
-              mkdir -p "$theme"
-              cd "$theme"
-              for f in /theme/*; do
-                name=$(basename "$f")
-                out=$(echo "${name%.gz}" | sed 's/__/\//g')
-                mkdir -p "$(dirname "$out")"
-                gunzip -c "$f" > "$out"
-              done
-
-              # Ghost serves redirects from the content directory; these are the
-              # old WordPress .html URLs, written by scripts/import-content.mjs.
-              mkdir -p /content/data
-              cp /redirects/redirects.json /content/data/redirects.json
-
-              echo "installed $(find . -type f | wc -l) theme files"
+            - gunzip -c /scripts/install-theme.sh.gz | sh
           volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
             - name: theme
               mountPath: /theme
               readOnly: true
@@ -162,6 +148,9 @@ spec:
             seccompProfile:
               type: RuntimeDefault
       volumes:
+        - name: scripts
+          configMap:
+            name: lucian-ghost-scripts
         - name: theme
           configMap:
             name: lucian-ghost-theme

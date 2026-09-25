@@ -270,6 +270,10 @@ async function syncSettings({ hero, og, terms }) {
     { key: "title", value: site.brand },
     { key: "description", value: home?.description ?? "" },
     { key: "locale", value: "nl" },
+    // A client's business site does not belong in Ghost's public directory
+    // unasked, and the nightly ping is the client's traffic, not ours.
+    { key: "explore_ping", value: false },
+    { key: "explore_ping_growth", value: false },
     { key: "timezone", value: "Europe/Amsterdam" },
     // The interior-page hero band uses the same photograph as the homepage;
     // Ghost's default cover is its own stock image.

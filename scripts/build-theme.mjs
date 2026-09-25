@@ -4,7 +4,8 @@
  *
  *   1. Tailwind compiles theme/assets/css/screen.css -> assets/built/screen.css
  *   2. every theme file is gzipped and committed as base/theme.configmap.json
- *   3. base/deployment.yaml gets a checksum of the result
+ *   3. the shell the pods run is packed the same way into base/scripts.configmap.json
+ *   4. base/deployment.yaml gets a checksum of the result
  *
  * There is no image registry in this cluster, so the theme travels as a
  * ConfigMap and an initContainer unpacks it into the content volume - the same
@@ -13,9 +14,9 @@
  *   - A ConfigMap key may not contain a slash, so "partials/header.hbs" is
  *     stored as "partials__header.hbs.gz"; the initContainer turns it back.
  *   - Everything goes in binaryData, base64 of gzip. Flux runs envsubst over
- *     every resource it applies; base64 has no "$" in its alphabet, so the
- *     theme cannot collide with a ${VARIABLE} in it, whatever a template
- *     contains later.
+ *     every resource it applies; base64 has no "$" in its alphabet, so neither
+ *     the theme nor the shell scripts can collide with a ${VARIABLE}, whatever
+ *     someone writes in them later.
  *
  * The output is deterministic - no timestamps, sorted keys - because CI rebuilds
  * it and fails if the committed ConfigMap differs.
@@ -85,6 +86,40 @@ writeFileSync(out, JSON.stringify(manifest, null, 2) + "\n")
 
 const bytes = Object.values(binaryData).reduce((total, value) => total + value.length, 0)
 console.log(`· theme: ${files.length} files, ${(bytes / 1024).toFixed(0)} KiB base64 -> ${relative(repo, out)}`)
+
+/* ------------------------------------------------ and the pod-side shell */
+
+/* The init and backup scripts travel the same way and for the same reason: a
+   shell script inline in a manifest is a pile of "$" signs for envsubst to eat.
+   Keeping them as files also means they can be linted and run locally. */
+const scriptFiles = ["install-theme.sh", "backup.sh"]
+const scriptData = {}
+for (const name of scriptFiles) {
+  const bytes = readFileSync(join(repo, "scripts", name))
+  digest.update(name)
+  digest.update(bytes)
+  scriptData[`${name}.gz`] = gzipSync(bytes, { level: 9 }).toString("base64")
+}
+
+const scriptsOut = join(repo, "base", "scripts.configmap.json")
+writeFileSync(
+  scriptsOut,
+  JSON.stringify(
+    {
+      apiVersion: "v1",
+      kind: "ConfigMap",
+      metadata: {
+        name: "lucian-ghost-scripts",
+        namespace: "services",
+        labels: { app: "lucian-ghost" },
+      },
+      binaryData: scriptData,
+    },
+    null,
+    2,
+  ) + "\n",
+)
+console.log(`· scripts: ${scriptFiles.length} files -> ${relative(repo, scriptsOut)}`)
 
 /* ------------------------------------------------- and stamp the checksum */
 

@@ -46,15 +46,9 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - |
-                  set -e
-                  dir=/var/lib/ghost/content/backups
-                  mkdir -p "$dir"
-                  cd /var/lib/ghost
-                  ghost export "$dir/$(date +%Y-%m-%dT%H%M%S).json" --no-prompt
-                  # Keep a week; anything older is noise nobody reads.
-                  ls -1t "$dir"/*.json | tail -n +8 | xargs -r rm -f
-                  echo "kept $(ls -1 "$dir"/*.json | wc -l) exports"
+                # Same reason as the initContainer: the script is a ConfigMap of
+                # gzipped base64 so envsubst cannot touch its variables.
+                - gunzip -c /scripts/backup.sh.gz | sh
               env:
                 - name: url
                   value: "https://lucian.${SECRET_DOMAIN_0}"
@@ -71,6 +65,9 @@ spec:
                 - name: logging__level
                   value: warn
               volumeMounts:
+                - name: scripts
+                  mountPath: /scripts
+                  readOnly: true
                 - name: content
                   mountPath: /var/lib/ghost/content
                 - name: tmp
@@ -89,6 +86,9 @@ spec:
                 seccompProfile:
                   type: RuntimeDefault
           volumes:
+            - name: scripts
+              configMap:
+                name: lucian-ghost-scripts
             - name: content
               persistentVolumeClaim:
                 claimName: lucian-ghost-content
