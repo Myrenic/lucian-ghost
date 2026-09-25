@@ -95,10 +95,10 @@ Bootstrapping a fresh install, once:
 
 1. `https://lucian.<domain>/ghost` -> create the owner account (name, email,
    password). This is Ghost's own setup screen.
-2. Settings -> Integrations -> new custom integration, or Staff -> Staff access
-   token, and run the import above against the public URL.
-3. Confirm the theme is active: Settings -> Design. It ships in the volume, so it
-   is already there and already selected.
+2. Settings -> Staff -> your user -> *Staff access token*, key `id:secret`, then
+   run the import above against the public URL. It activates the theme as well:
+   a fresh install serves Ghost's starter theme, and ours is only *present* in
+   the volume until something selects it.
 
 ## Operations
 

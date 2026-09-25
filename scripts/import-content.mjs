@@ -411,11 +411,20 @@ async function verify() {
   return failed
 }
 
+/** A fresh install serves Ghost's own starter theme; this one ships in the
+    content volume, so it only needs to be selected. */
+async function activateTheme() {
+  log("· theme: activate lucian")
+  if (!dryRun) await request("/ghost/api/admin/themes/lucian/activate/", { method: "PUT" })
+}
+
 /* ------------------------------------------------------------------- main */
 
 token = adminToken(ghostKey)
 log(`lucian-ghost import -> ${base}${dryRun ? " (dry run)" : ""}`)
 log(`source: ${source}`)
+
+await activateTheme()
 
 const uploads = await syncUploads()
 await syncSettings(uploads)
