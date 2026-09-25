@@ -144,24 +144,22 @@ spec:
               memory: 256Mi
             limits:
               memory: 768Mi
-          # Ghost answers a request whose Host is not its configured url with a
-          # 301 to that url, so an HTTP probe without a Host header never
-          # settles: the kubelet asks the pod, gets "go to the public URL", and
-          # the public URL is not routable until the pod is Ready. The startup
-          # gate only needs to know Ghost is listening; the readiness probe asks
-          # for the real thing, with the real host.
+          # Both probes are socket checks on purpose. Ghost redirects any
+          # request whose Host is not its configured url, and the kubelet cannot
+          # send one: Go's client ignores a Host header set through httpHeaders
+          # and uses the address it dialled, so an HTTP probe always gets a 301
+          # and the kubelet reports "Probe terminated redirects". That redirect
+          # points at the public URL, which is only routable once the pod is
+          # Ready - a circle worth not designing for. Ghost listens only after
+          # its migrations finish, which is what these gates need to know.
           startupProbe:
             tcpSocket:
               port: http
             periodSeconds: 5
             failureThreshold: 40
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
-              httpHeaders:
-                - name: Host
-                  value: "lucian.${SECRET_DOMAIN_0}"
             periodSeconds: 15
             timeoutSeconds: 5
           securityContext:

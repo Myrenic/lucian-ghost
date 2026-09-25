@@ -98,7 +98,10 @@ for (const name of scriptFiles) {
   const bytes = readFileSync(join(repo, "scripts", name))
   digest.update(name)
   digest.update(bytes)
-  scriptData[`${name}.gz`] = gzipSync(bytes, { level: 9 }).toString("base64")
+  // Same flattening as the theme: a ConfigMap key may not contain a slash, so
+  // "lib/ghost-admin.mjs" is stored as "lib__ghost-admin.mjs.gz" and the
+  // CronJob's initContainer turns it back before node runs it.
+  scriptData[`${name.replaceAll("/", "__")}.gz`] = gzipSync(bytes, { level: 9 }).toString("base64")
 }
 
 const scriptsOut = join(repo, "base", "scripts.configmap.json")
