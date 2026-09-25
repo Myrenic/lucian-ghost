@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lucian-ghost
+  namespace: services
+  labels:
+    app: lucian-ghost
+    app.kubernetes.io/name: lucian-ghost
+spec:
+  type: ClusterIP
+  selector:
+    app: lucian-ghost
+  ports:
+    - name: http
+      port: 2368
+      targetPort: http

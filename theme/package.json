@@ -1,0 +1,109 @@
+{
+  "name": "lucian",
+  "description": "LUCIAN — ontzorger voor ondernemer en particulier. Custom Ghost theme.",
+  "version": "1.0.0",
+  "engines": {
+    "ghost": ">=6.0.0",
+    "ghost-api": "v6"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Mike T"
+  },
+  "keywords": [
+    "ghost-theme"
+  ],
+  "scripts": {
+    "build": "tailwindcss -i assets/css/screen.css -o assets/built/screen.css --minify",
+    "watch": "tailwindcss -i assets/css/screen.css -o assets/built/screen.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "tailwindcss": "^4.1.18"
+  },
+  "config": {
+    "posts_per_page": 12,
+    "image_sizes": {
+      "xs": { "width": 320 },
+      "s": { "width": 640 },
+      "m": { "width": 960 },
+      "l": { "width": 1280 },
+      "xl": { "width": 2000 }
+    },
+    "custom": {
+      "hero_heading": {
+        "type": "text",
+        "group": "homepage",
+        "default": "Helder in cijfers, nuchter als ontzorger"
+      },
+      "hero_lead": {
+        "type": "text",
+        "group": "homepage",
+        "default": "LUCIAN is de allround ontzorger bij financiële administratie, belastingadvies en creditmanagement. Voor ondernemer en particulier: krijg grip op je cijfers!"
+      },
+      "hero_image": {
+        "type": "image",
+        "group": "homepage"
+      },
+      "statement": {
+        "type": "text",
+        "group": "homepage",
+        "default": "Ontzorger voor ondernemer en particulier"
+      },
+
+      "contact_name": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "Andries Luchies"
+      },
+      "contact_street": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "Brederolaan 19"
+      },
+      "contact_postal_code": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "9673 GM"
+      },
+      "contact_city": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "Winschoten"
+      },
+      "contact_email": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "info@luciancs.nl"
+      },
+      "contact_phone": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "06-55684505"
+      },
+      "contact_url": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "/contact/",
+        "description": "Where the Contact buttons point"
+      },
+      "footer_info_title": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "Info"
+      },
+      "social_facebook": {
+        "type": "text",
+        "group": "site-wide"
+      },
+      "social_linkedin": {
+        "type": "text",
+        "group": "site-wide"
+      },
+      "social_twitter": {
+        "type": "text",
+        "group": "site-wide"
+      }
+    }
+  }
+}

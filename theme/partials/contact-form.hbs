@@ -1,0 +1,65 @@
+{{!-- The form the original posted to Contact Form 7.
+     There is no endpoint here, so submitting composes the same message as a
+     mail to the office and hands it to the visitor's own mail client; nothing
+     is captured anywhere. Replace data-contact-form with a real endpoint if the
+     client ever wants the messages stored. --}}
+<div class="mt-8">
+    {{!-- The original set this heading itself, centred at 1.2rem - not as
+          article content, which is why it lives in the template. --}}
+    <h2 class="text-center font-heading text-[1.2rem] leading-snug font-semibold text-foreground">
+        Contactformulier
+    </h2>
+
+    <form class="mt-8" data-contact-form data-mailto="{{@custom.contact_email}}" novalidate>
+        <div class="flex w-full flex-col gap-5">
+            <div class="flex w-full flex-col gap-2">
+                <label class="text-sm leading-snug font-medium text-foreground" for="field-Naam">Naam</label>
+                <input class="h-11 w-full min-w-0 rounded-lg border border-input bg-card px-2.5 py-1 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
+                       id="field-Naam" name="Naam" type="text" required maxlength="400" autocomplete="name">
+                <div class="hidden text-sm font-normal text-destructive" role="alert" data-error-for="Naam"></div>
+            </div>
+
+            <div class="flex w-full flex-col gap-2">
+                <label class="text-sm leading-snug font-medium text-foreground" for="field-Email">Email</label>
+                <input class="h-11 w-full min-w-0 rounded-lg border border-input bg-card px-2.5 py-1 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
+                       id="field-Email" name="Email" type="email" required maxlength="400" autocomplete="email">
+                <div class="hidden text-sm font-normal text-destructive" role="alert" data-error-for="Email"></div>
+            </div>
+
+            <div class="flex w-full flex-col gap-2">
+                <label class="text-sm leading-snug font-medium text-foreground" for="field-Mobiel">
+                    Mobiel<span class="ml-1 text-muted-foreground">(optioneel)</span>
+                </label>
+                <input class="h-11 w-full min-w-0 rounded-lg border border-input bg-card px-2.5 py-1 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
+                       id="field-Mobiel" name="Mobiel" type="tel" maxlength="12" autocomplete="tel">
+                <div class="hidden text-sm font-normal text-destructive" role="alert" data-error-for="Mobiel"></div>
+            </div>
+
+            <div class="flex w-full flex-col gap-2">
+                <label class="text-sm leading-snug font-medium text-foreground" for="field-Onderwerp">Onderwerp</label>
+                <input class="h-11 w-full min-w-0 rounded-lg border border-input bg-card px-2.5 py-1 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
+                       id="field-Onderwerp" name="Onderwerp" type="text" required maxlength="400">
+                <div class="hidden text-sm font-normal text-destructive" role="alert" data-error-for="Onderwerp"></div>
+            </div>
+
+            <div class="flex w-full flex-col gap-2">
+                <label class="text-sm leading-snug font-medium text-foreground" for="field-Bericht">Bericht</label>
+                <textarea class="min-h-40 w-full rounded-lg border border-input bg-card px-2.5 py-2 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
+                          id="field-Bericht" name="Bericht" rows="8" minlength="10" required></textarea>
+                <div class="hidden text-sm font-normal text-destructive" role="alert" data-error-for="Bericht"></div>
+            </div>
+        </div>
+
+        <div class="mt-7 flex flex-wrap items-center gap-4">
+            <button type="submit" class="btn btn-cta btn-primary">Verstuur</button>
+            <p class="m-0 text-[0.875rem] text-muted-foreground">
+                of mail direct naar
+                <a class="font-medium text-primary underline decoration-primary/35 underline-offset-4 hover:decoration-primary"
+                   href="mailto:{{@custom.contact_email}}">{{@custom.contact_email}}</a>
+            </p>
+        </div>
+
+        <p class="mt-5 hidden rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-[0.9375rem] text-foreground"
+           role="status" data-form-status></p>
+    </form>
+</div>

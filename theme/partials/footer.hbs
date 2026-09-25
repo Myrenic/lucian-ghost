@@ -1,0 +1,77 @@
+<footer class="bg-foreground text-background">
+    <div class="page">
+        <div class="grid grid-cols-1 gap-x-8 gap-y-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+                <h2 class="text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">Adres</h2>
+                <div class="mt-4 space-y-1 text-[0.9375rem] leading-relaxed">
+                    <p class="m-0">{{@custom.contact_name}}</p>
+                    <p class="m-0">{{@custom.contact_street}}</p>
+                    <p class="m-0">{{@custom.contact_postal_code}}</p>
+                    <p class="m-0">{{@custom.contact_city}}</p>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">Contact</h2>
+                <div class="mt-4 space-y-1 text-[0.9375rem] leading-relaxed">
+                    <p class="m-0">Email:</p>
+                    <p class="m-0">
+                        <a class="underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                           href="mailto:{{@custom.contact_email}}">{{@custom.contact_email}}</a>
+                    </p>
+                    <p class="m-0">Mobiel:</p>
+                    <p class="m-0">
+                        <a class="underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                           href="tel:{{@custom.contact_phone}}">{{@custom.contact_phone}}</a>
+                    </p>
+                </div>
+            </div>
+
+            {{!-- The second navigation, so the client edits these links in Design
+                  rather than in the theme. --}}
+            <div>
+                <h2 class="text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">{{@custom.footer_info_title}}</h2>
+                <div class="mt-4 space-y-1 text-[0.9375rem] leading-relaxed">
+                    {{#foreach @site.secondary_navigation}}
+                        <p class="m-0">
+                            <a class="underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                               href="{{url}}"{{#if target}} target="_blank" rel="noopener noreferrer"{{/if}}>{{label}}</a>
+                        </p>
+                    {{/foreach}}
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-0 border-t border-background/15">
+
+        <div class="flex flex-col-reverse items-start justify-between gap-6 py-7 sm:flex-row sm:items-center">
+            <p class="m-0 text-sm text-background/60">By Mike T.</p>
+            <ul class="m-0 flex list-none gap-2 p-0">
+                {{#if @custom.social_facebook}}
+                    <li>
+                        <a class="flex size-9 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
+                           href="{{@custom.social_facebook}}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                            {{> "icon-facebook"}}
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if @custom.social_linkedin}}
+                    <li>
+                        <a class="flex size-9 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
+                           href="{{@custom.social_linkedin}}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                            {{> "icon-linkedin"}}
+                        </a>
+                    </li>
+                {{/if}}
+                {{#if @custom.social_twitter}}
+                    <li>
+                        <a class="flex size-9 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
+                           href="{{@custom.social_twitter}}" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                            {{> "icon-twitter"}}
+                        </a>
+                    </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</footer>

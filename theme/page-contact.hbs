@@ -1,0 +1,17 @@
+{{!< default}}
+{{!-- The contact page: slug "contact" picks this template up. The article above
+     the form is whatever the writer put in the editor. --}}
+{{#post}}
+{{> "page-hero"}}
+
+<section class="band bg-background">
+    <div class="page">
+        <div class="mx-auto w-full max-w-3xl">
+            {{#if content}}
+                <article class="gh-content">{{content}}</article>
+            {{/if}}
+            {{> "contact-form"}}
+        </div>
+    </div>
+</section>
+{{/post}}

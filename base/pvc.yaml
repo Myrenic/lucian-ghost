@@ -1,0 +1,20 @@
+# Everything Ghost needs to keep: the SQLite database, the images the client
+# uploads, the theme the initContainer unpacks, the nightly content export and
+# Ghost's logs. One volume, because there is one writer.
+#
+# 2 replicas is the most this cluster's storage classes offer; see the README on
+# what that does and does not protect against.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lucian-ghost-content
+  namespace: services
+  labels:
+    app: lucian-ghost
+    app.kubernetes.io/name: lucian-ghost
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn-2-replicas
+  resources:
+    requests:
+      storage: 5Gi

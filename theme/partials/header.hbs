@@ -1,0 +1,68 @@
+<header class="sticky top-0 z-50 bg-background/80 backdrop-blur-md">
+    <div class="page">
+        <div class="flex h-16 items-center gap-1">
+            <a class="mr-3 font-heading text-[0.9375rem] font-semibold tracking-[0.1em] text-foreground"
+               href="{{@site.url}}">{{@site.title}}</a>
+
+            <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Hoofdmenu">
+                {{#foreach @site.navigation}}
+                    <a class="btn btn-default btn-ghost" href="{{url}}">{{label}}</a>
+                {{/foreach}}
+                <a class="btn btn-default btn-primary ml-2" href="{{@custom.contact_url}}">Contact</a>
+            </nav>
+
+            <button type="button" id="menu-toggle"
+                    class="ml-auto inline-flex size-8 items-center justify-center rounded-lg text-foreground hover:bg-secondary md:hidden"
+                    aria-label="Menu" aria-expanded="false" aria-controls="site-menu">
+                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" aria-hidden="true">
+                    <path d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</header>
+
+{{!-- The small-screen menu. No framework for this: one button, one panel. --}}
+<div id="site-menu" class="fixed inset-0 z-40 hidden md:hidden">
+    <div class="absolute inset-0 bg-foreground/40" data-menu-close></div>
+    <div class="absolute inset-y-0 right-0 w-3/4 max-w-sm bg-background shadow-xl">
+        <div class="flex h-16 items-center px-4">
+            <span class="font-semibold tracking-[0.1em]">{{@site.title}}</span>
+            <button type="button" class="ml-auto inline-flex size-8 items-center justify-center rounded-lg hover:bg-secondary"
+                    aria-label="Menu sluiten" data-menu-close>
+                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" aria-hidden="true">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <nav class="grid gap-1 p-4" aria-label="Hoofdmenu">
+            {{#foreach @site.navigation}}
+                <a class="btn btn-ghost h-10 justify-start px-3 text-base font-medium" href="{{url}}">{{label}}</a>
+            {{/foreach}}
+        </nav>
+
+        <div class="absolute inset-x-0 bottom-0 grid gap-3 border-t border-border p-4">
+            <a class="btn btn-ghost h-10 justify-start px-3 font-medium"
+               href="tel:{{@custom.contact_phone}}">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/>
+                </svg>
+                {{@custom.contact_phone}}
+            </a>
+            <a class="btn btn-ghost h-10 justify-start px-3 font-medium"
+               href="mailto:{{@custom.contact_email}}">
+                <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+                {{@custom.contact_email}}
+            </a>
+            <a class="btn btn-cta btn-primary" href="{{@custom.contact_url}}">Contact</a>
+        </div>
+    </div>
+</div>

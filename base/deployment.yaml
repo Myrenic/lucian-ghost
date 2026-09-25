@@ -1,0 +1,175 @@
+# Ghost, running the client's site.
+#
+# No image registry in this cluster and no database server either: the theme and
+# the legacy URLs travel as ConfigMaps and an initContainer unpacks them into a
+# Longhorn volume that holds Ghost's whole world - the SQLite database, the
+# images the client uploads, and the theme itself.
+#
+# See the README for why SQLite (one writer, nothing to patch, `ghost export`
+# for backups) and what it costs (one replica, no concurrent staff editing).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lucian-ghost
+  namespace: services
+  labels:
+    app: lucian-ghost
+    app.kubernetes.io/name: lucian-ghost
+spec:
+  replicas: 1
+  # One writer: the volume holds SQLite, so the old pod has to be gone before
+  # the new one starts rather than overlapping.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: lucian-ghost
+  template:
+    metadata:
+      labels:
+        app: lucian-ghost
+        app.kubernetes.io/name: lucian-ghost
+      annotations:
+        # Stamped by scripts/build-theme.mjs on every build. The theme is
+        # unpacked by an initContainer, which only runs when a pod starts - so
+        # without this, a new ConfigMap would be applied and never read.
+        checksum/theme: "10870b267a001c5d1daad1c60b59a3e2"
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        # The official image runs Ghost as the "node" user (uid 1000).
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: install-content
+          image: docker.io/library/busybox:1.37
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              theme=/content/themes/lucian
+
+              # The theme is ours and code-owned, so it is replaced wholesale:
+              # a template deleted in the repository should disappear here too.
+              rm -rf "$theme"
+              mkdir -p "$theme"
+              cd "$theme"
+              for f in /theme/*; do
+                name=$(basename "$f")
+                out=$(echo "${name%.gz}" | sed 's/__/\//g')
+                mkdir -p "$(dirname "$out")"
+                gunzip -c "$f" > "$out"
+              done
+
+              # Ghost serves redirects from the content directory; these are the
+              # old WordPress .html URLs, written by scripts/import-content.mjs.
+              mkdir -p /content/data
+              cp /redirects/redirects.json /content/data/redirects.json
+
+              echo "installed $(find . -type f | wc -l) theme files"
+          volumeMounts:
+            - name: theme
+              mountPath: /theme
+              readOnly: true
+            - name: redirects
+              mountPath: /redirects
+              readOnly: true
+            - name: content
+              mountPath: /content
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+      containers:
+        - name: ghost
+          image: docker.io/library/ghost:6-alpine
+          ports:
+            - name: http
+              containerPort: 2368
+          env:
+            - name: url
+              value: "https://lucian.${SECRET_DOMAIN_0}"
+            - name: NODE_ENV
+              value: production
+            - name: TZ
+              value: "${TZ}"
+            - name: database__client
+              value: sqlite3
+            - name: database__connection__filename
+              value: content/data/ghost.db
+            - name: database__useNullAsDefault
+              value: "true"
+            - name: paths__contentPath
+              value: content
+            - name: logging__level
+              value: info
+          # Mail is only needed to send the sign-in verification code, and for
+          # any newsletter the client starts later. Optional on purpose: without
+          # the Secret Ghost runs, but a staff login from a new device cannot
+          # finish (the first login after install skips the code). The keys are
+          # Ghost's own config names - mail__transport=SMTP, mail__options__host,
+          # mail__options__port, mail__options__auth__user,
+          # mail__options__auth__pass, mail__from.
+          envFrom:
+            - secretRef:
+                name: lucian-ghost-mail
+                optional: true
+          volumeMounts:
+            - name: content
+              mountPath: /var/lib/ghost/content
+            # The root filesystem is read-only; Ghost's CLI and sharp want /tmp.
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              memory: 768Mi
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            failureThreshold: 40
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: theme
+          configMap:
+            name: lucian-ghost-theme
+        - name: redirects
+          configMap:
+            name: lucian-ghost-redirects
+        - name: content
+          persistentVolumeClaim:
+            claimName: lucian-ghost-content
+        - name: tmp
+          emptyDir: {}

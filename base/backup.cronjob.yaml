@@ -1,0 +1,96 @@
+# A nightly content export, because this cluster has no other backup: no
+# Longhorn RecurringJob, no off-cluster copy, and the database lives on the same
+# volume. `ghost export` writes the whole site - pages, settings, theme choices -
+# as JSON next to the database, and the last seven are kept.
+#
+# What this protects: a bad edit, a page deleted by mistake, a theme setting
+# nobody can remember. What it does not: losing the volume. Copy these files
+# (or the whole claim) somewhere off the cluster.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: lucian-ghost-backup
+  namespace: services
+  labels:
+    app: lucian-ghost
+    app.kubernetes.io/name: lucian-ghost
+    app.kubernetes.io/component: backup
+spec:
+  schedule: "17 3 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: lucian-ghost
+            app.kubernetes.io/component: backup
+        spec:
+          restartPolicy: OnFailure
+          automountServiceAccountToken: false
+          enableServiceLinks: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: export
+              image: docker.io/library/ghost:6-alpine
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  dir=/var/lib/ghost/content/backups
+                  mkdir -p "$dir"
+                  cd /var/lib/ghost
+                  ghost export "$dir/$(date +%Y-%m-%dT%H%M%S).json" --no-prompt
+                  # Keep a week; anything older is noise nobody reads.
+                  ls -1t "$dir"/*.json | tail -n +8 | xargs -r rm -f
+                  echo "kept $(ls -1 "$dir"/*.json | wc -l) exports"
+              env:
+                - name: url
+                  value: "https://lucian.${SECRET_DOMAIN_0}"
+                - name: NODE_ENV
+                  value: production
+                - name: TZ
+                  value: "${TZ}"
+                - name: database__client
+                  value: sqlite3
+                - name: database__connection__filename
+                  value: content/data/ghost.db
+                - name: database__useNullAsDefault
+                  value: "true"
+                - name: logging__level
+                  value: warn
+              volumeMounts:
+                - name: content
+                  mountPath: /var/lib/ghost/content
+                - name: tmp
+                  mountPath: /tmp
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 256Mi
+                limits:
+                  memory: 768Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+                readOnlyRootFilesystem: true
+                seccompProfile:
+                  type: RuntimeDefault
+          volumes:
+            - name: content
+              persistentVolumeClaim:
+                claimName: lucian-ghost-content
+            - name: tmp
+              emptyDir: {}

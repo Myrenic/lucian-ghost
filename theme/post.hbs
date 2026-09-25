@@ -1,0 +1,22 @@
+{{!< default}}
+{{!-- A Kenniscentrum article. --}}
+{{#post}}
+{{> "page-hero"}}
+
+<section class="band bg-background">
+    <div class="page">
+        <article class="gh-content mx-auto w-full max-w-3xl">
+            <p class="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMMM YYYY"}}</time>
+                <span aria-hidden="true">&middot;</span>
+                <span>{{reading_time}}</span>
+                {{#if primary_tag}}
+                    <span aria-hidden="true">&middot;</span>
+                    <a href="{{primary_tag.url}}">{{primary_tag.name}}</a>
+                {{/if}}
+            </p>
+            {{content}}
+        </article>
+    </div>
+</section>
+{{/post}}

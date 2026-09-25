@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#800000">
+    <title>{{meta_title}}</title>
+
+    {{!-- Ghost writes the canonical, the description, the Open Graph and
+          Twitter tags and the structured data here. --}}
+    {{ghost_head}}
+
+    <link rel="stylesheet" href="{{asset "built/screen.css"}}">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="{{asset "fonts/rubik-latin.woff2"}}">
+</head>
+<body class="{{body_class}} font-sans">
+
+    {{> "header"}}
+
+    <main>
+        {{{body}}}
+    </main>
+
+    {{> "footer"}}
+
+    <script src="{{asset "js/main.js"}}" defer></script>
+    {{ghost_foot}}
+</body>
+</html>

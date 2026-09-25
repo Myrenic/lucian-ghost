@@ -1,0 +1,18 @@
+{{!-- One client quote, as a stock panel. `quote`, `name` and `role` come from the
+     caller; the quotes are the original's, verbatim, keeping the source's own
+     punctuation. --}}
+<li>
+    <div class="card">
+        <div class="px-4">
+            <figure class="flex flex-col gap-4">
+                <blockquote class="text-[1.0625rem] leading-[1.7] text-pretty m-0">
+                    &ldquo;{{{quote}}}&rdquo;
+                </blockquote>
+                <figcaption class="flex flex-col border-t pt-4">
+                    <span class="font-heading font-semibold">{{name}}</span>
+                    <span class="text-sm text-muted-foreground">{{role}}</span>
+                </figcaption>
+            </figure>
+        </div>
+    </div>
+</li>

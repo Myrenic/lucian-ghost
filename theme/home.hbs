@@ -1,0 +1,79 @@
+{{!< default}}
+{{!-- The homepage. The photograph, the tagline, the lead and two ways onward,
+     then the statement band, the services, the quotes, and the latest
+     Kenniscentrum articles when there are any. --}}
+<section class="relative isolate flex min-h-[34rem] items-center overflow-hidden bg-foreground lg:min-h-[40rem]">
+    {{#if @custom.hero_image}}
+        <img src="{{img_url @custom.hero_image size="xl"}}"
+             srcset="{{img_url @custom.hero_image size="m"}} 960w, {{img_url @custom.hero_image size="l"}} 1280w, {{img_url @custom.hero_image size="xl"}} 2000w"
+             sizes="100vw" alt="" aria-hidden="true" fetchpriority="high"
+             class="absolute inset-0 -z-20 size-full object-cover object-[52%_35%]">
+    {{else}}
+        <img src="{{asset "images/hero-1600.avif"}}"
+             srcset="{{asset "images/hero-800.avif"}} 800w, {{asset "images/hero-1200.avif"}} 1200w, {{asset "images/hero-1600.avif"}} 1600w, {{asset "images/hero-2000.avif"}} 2000w"
+             sizes="100vw" alt="" aria-hidden="true" fetchpriority="high"
+             class="absolute inset-0 -z-20 size-full object-cover object-[52%_35%]">
+    {{/if}}
+    <div class="absolute inset-0 -z-10 bg-linear-to-b from-foreground/65 via-foreground/72 to-foreground/93" aria-hidden="true"></div>
+
+    <div class="page py-24">
+        <h1 class="max-w-4xl font-heading text-[clamp(2.125rem,5.2vw,3.375rem)] leading-[1.06] font-semibold text-white text-balance">
+            {{@custom.hero_heading}}
+        </h1>
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-background/75 text-pretty">
+            {{@custom.hero_lead}}
+        </p>
+        <a class="btn btn-cta btn-primary mt-8" href="{{@custom.contact_url}}">Contact</a>
+    </div>
+</section>
+
+{{!-- The statement, flanked by two hairlines as in the original. --}}
+<section class="border-b border-border/70">
+    <div class="page py-12 sm:py-16">
+        <div class="mx-auto flex max-w-4xl items-center gap-5 sm:gap-8">
+            <span class="hidden h-px flex-1 bg-border sm:block" aria-hidden="true"></span>
+            <h2 class="font-heading text-[clamp(1.375rem,2.6vw,1.875rem)] leading-[1.2] font-medium text-foreground text-balance">
+                {{@custom.statement}}
+            </h2>
+            <span class="hidden h-px flex-1 bg-border sm:block" aria-hidden="true"></span>
+        </div>
+    </div>
+</section>
+
+<section id="diensten" class="band bg-secondary">
+    {{> "services"}}
+</section>
+
+<section class="band bg-foreground">
+    {{> "testimonials"}}
+</section>
+
+{{!-- Written articles, once the client starts posting. --}}
+{{#get "posts" limit="3"}}
+    {{#if posts}}
+        <section class="band bg-background">
+            <div class="page">
+                <div class="mx-auto max-w-3xl">
+                    <h2 class="font-heading text-[clamp(1.375rem,2.6vw,1.875rem)] leading-[1.2] font-medium text-foreground">
+                        Kenniscentrum
+                    </h2>
+                    <ul class="mt-8 list-none space-y-6 p-0">
+                        {{#foreach posts}}
+                            <li class="border-t border-border pt-6">
+                                <a class="group/post block" href="{{url}}">
+                                    <h3 class="font-heading font-semibold text-foreground group-hover/post:text-primary">{{title}}</h3>
+                                    <p class="mt-2 leading-relaxed text-muted-foreground">{{excerpt}}</p>
+                                    <time class="mt-2 block text-sm text-muted-foreground" datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMMM YYYY"}}</time>
+                                </a>
+                            </li>
+                        {{/foreach}}
+                    </ul>
+                    <p class="mt-8">
+                        <a class="font-medium text-primary underline decoration-primary/35 underline-offset-4 hover:decoration-primary"
+                           href="/kenniscentrum/">Alle artikelen</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+    {{/if}}
+{{/get}}

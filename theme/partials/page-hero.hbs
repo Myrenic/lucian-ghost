@@ -1,0 +1,35 @@
+{{!-- The band under the header on interior pages: breadcrumb and title on the
+     photograph. Pages are flat in Ghost, so the crumb is the site and the page. --}}
+<section class="relative isolate overflow-hidden bg-foreground">
+    {{#if @site.cover_image}}
+        <img src="{{img_url @site.cover_image size="xl"}}" alt="" aria-hidden="true"
+             class="absolute inset-0 -z-20 size-full object-cover object-[52%_28%] opacity-40">
+    {{else}}
+        <img src="{{asset "images/hero-1600.avif"}}" srcset="{{asset "images/hero-800.avif"}} 800w, {{asset "images/hero-1200.avif"}} 1200w, {{asset "images/hero-1600.avif"}} 1600w, {{asset "images/hero-2000.avif"}} 2000w"
+             sizes="100vw" alt="" aria-hidden="true"
+             class="absolute inset-0 -z-20 size-full object-cover object-[52%_28%] opacity-40">
+    {{/if}}
+    <div class="absolute inset-0 -z-10 bg-linear-to-b from-foreground/70 via-foreground/85 to-foreground" aria-hidden="true"></div>
+
+    <div class="page pt-28 pb-9 sm:pt-32 sm:pb-11">
+        <nav aria-label="Kruimelpad">
+            <ol class="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-sm text-background/60">
+                <li>
+                    <a class="transition-colors hover:text-background" href="{{@site.url}}">{{@site.title}}</a>
+                </li>
+                <li aria-hidden="true" class="text-background/30">
+                    <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </li>
+                <li>
+                    <span class="font-medium text-background/90" aria-current="page">{{title}}</span>
+                </li>
+            </ol>
+        </nav>
+
+        {{#if @page.show_title_and_feature_image}}
+            <h1 class="mt-4 font-heading text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.1] font-semibold text-white text-balance">
+                {{title}}
+            </h1>
+        {{/if}}
+    </div>
+</section>

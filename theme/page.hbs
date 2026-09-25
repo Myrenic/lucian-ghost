@@ -1,0 +1,14 @@
+{{!< default}}
+{{!-- A page: the band under the header, then the article the writer composed.
+     Page bodies are editor content, so the typography lives in .gh-content. --}}
+{{#post}}
+{{> "page-hero"}}
+
+<section class="band bg-background">
+    <div class="page">
+        <article class="gh-content mx-auto w-full max-w-3xl">
+            {{content}}
+        </article>
+    </div>
+</section>
+{{/post}}

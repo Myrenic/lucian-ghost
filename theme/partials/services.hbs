@@ -1,0 +1,39 @@
+{{!-- The four service panels, as on the original homepage. One link per panel so
+     the whole thing is a target, and a 1/2/4 grid: the original laid four
+     col-lg-4 cards in a row that did not wrap and overflowed the viewport.
+     Card titles lead to the section page each panel describes.
+
+     Each lead is two lines in the source ("ontzorger op administratief gebied"
+     on its own line) - the imported text had lost the break, so it is restored
+     here rather than left as one run-on sentence. --}}
+<div class="page">
+    <ul class="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+        {{> "service-card"
+            icon="briefcase"
+            href="/administratiekantoor/"
+            title="Administratiekantoor"
+            lead="ontzorger op administratief gebied<br>hier kunt u terecht met vrijwel al uw hulpvragen."
+            items="<li>Financiële administratie</li><li>Bedrijfseconomisch advies</li><li>AO/IB</li><li>Quickscan</li>"}}
+
+        {{> "service-card"
+            icon="idea"
+            href="/belastingadviseur/"
+            title="Belastingadviseur"
+            lead="ontzorger op het gebied van belastingen<br>hier kunt u terecht met vrijwel al uw hulpvragen."
+            items="<li>Inkomstenbelasting</li><li>Vennootschapsbelasting</li><li>Omzetbelasting</li><li>Erf-en schenkbelasting</li>"}}
+
+        {{> "service-card"
+            icon="growing-chart"
+            href="/financiele-hulp/"
+            title="Financiële hulp"
+            lead="ontzorger u op het gebied van financiën<br>hier kunt u terecht met vrijwel al uw hulpvragen."
+            items="<li>Budgetbeheer-en coaching</li><li>Schuldhulpverlening</li><li>Toeslagen en tegemoetkomingen</li><li>Financiële planning</li>"}}
+
+        {{> "service-card"
+            icon="setting"
+            href="/ondersteuning/"
+            title="Ondersteuning"
+            lead="ontzorger op operationeel en digitaal vlak<br>hier kunt u terecht met vrijwel al uw randzaken."
+            items="<li>Operationele hulp</li><li>Websitebeheer &amp; onderhoud</li><li>Search engine optimalisatie</li><li>Social media support</li>"}}
+    </ul>
+</div>

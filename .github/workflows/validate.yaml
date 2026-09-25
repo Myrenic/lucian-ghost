@@ -1,0 +1,61 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: theme/package-lock.json
+
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: v1.36.3
+
+      - name: Manifests build
+        run: kubectl kustomize . >/dev/null
+
+      - name: Theme and ConfigMap rebuild byte-identically
+        run: |
+          set -euo pipefail
+          npm --prefix theme ci
+          node scripts/build-theme.mjs
+          if ! git diff --quiet; then
+            echo "::error::build output differs from the committed ConfigMap - run the build and commit"
+            git --no-pager diff --stat
+            exit 1
+          fi
+
+      - name: Theme templates are balanced
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import { readFileSync, readdirSync } from "node:fs"
+            const files = [".", "theme", "theme/partials"].flatMap((dir) =>
+              readdirSync(dir).filter((f) => f.endsWith(".hbs")).map((f) => (dir === "." ? f : dir + "/" + f)),
+            )
+            let bad = 0
+            for (const file of files) {
+              const source = readFileSync(file, "utf8")
+              const opens = (source.match(/\{\{#(if|unless|foreach|get|post|match|is)\b/g) ?? []).length
+              const closes = (source.match(/\{\{\//g) ?? []).length
+              if (opens !== closes) { console.log(file, opens, "opens,", closes, "closes"); bad = 1 }
+            }
+            process.exit(bad)
+          '

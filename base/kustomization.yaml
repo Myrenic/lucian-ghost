@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://json.schemastore.org/kustomization
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  # Both are generated and committed: theme.configmap.json by
+  # scripts/build-theme.mjs, redirects.configmap.json by
+  # scripts/import-content.mjs. Their contents travel as gzipped base64 because
+  # a ConfigMap key may not contain a slash and because Flux runs envsubst over
+  # everything it applies.
+  - ./theme.configmap.json
+  - ./redirects.configmap.json
+  - ./pvc.yaml
+  - ./deployment.yaml
+  - ./service.yaml
+  - ./backup.cronjob.yaml
