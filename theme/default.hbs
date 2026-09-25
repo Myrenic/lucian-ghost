@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#800000">
-    {{! Two routes need a title of their own: the homepage (the client's, not the
-        site name) and the article list, which Ghost titles with the bare site
-        name because the collection has none. }}
-    <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{#is "index"}}{{#if tag}}{{tag.name}}{{else}}{{#if author}}{{author.name}}{{else}}Artikelen{{/if}}{{/if}} - {{@site.title}}{{else}}{{meta_title}}{{/is}}{{/is}}</title>
+    {{! The homepage needs a title of its own: the client's, not the site name.
+        Custom collections get none from Ghost - a collection written in
+        routes.yaml has no route context, so {{meta_title}} is the site name
+        there, and no {{#is}} can single it out. The heading in index.hbs is
+        where that page names itself. }}
+    <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{meta_title}}{{/is}}</title>
 
     {{!-- Ghost writes the canonical, the description, the Open Graph and
           Twitter tags and the structured data here.
