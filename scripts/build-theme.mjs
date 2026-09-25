@@ -4,22 +4,26 @@
  *
  *   1. Tailwind compiles theme/assets/css/screen.css -> assets/built/screen.css
  *   2. every theme file is gzipped and committed as base/theme.configmap.json
- *   3. the shell the pods run is packed the same way into base/scripts.configmap.json
- *   4. base/deployment.yaml gets a checksum of the result
+ *   3. the shell and node the pods run is packed the same way into
+ *      base/scripts.configmap.json
+ *   4. base/deployment.yaml gets a checksum of both
  *
- * There is no image registry in this cluster, so the theme travels as a
- * ConfigMap and an initContainer unpacks it into the content volume - the same
- * arrangement lucian-cs uses for the static build. Two details matter:
+ * There is no image registry in this cluster, so the theme and the scripts travel
+ * as ConfigMaps and an initContainer unpacks them - the same arrangement
+ * lucian-cs uses for the static build. Three details matter:
  *
- *   - A ConfigMap key may not contain a slash, so "partials/header.hbs" is
- *     stored as "partials__header.hbs.gz"; the initContainer turns it back.
+ *   - A ConfigMap key may not contain a slash, so "partials/header.hbs" is stored
+ *     as "partials__header.hbs.gz"; the pods turn it back.
  *   - Everything goes in binaryData, base64 of gzip. Flux runs envsubst over
- *     every resource it applies; base64 has no "$" in its alphabet, so neither
- *     the theme nor the shell scripts can collide with a ${VARIABLE}, whatever
- *     someone writes in them later.
+ *     every resource it applies; base64 has no "$" in its alphabet, so neither a
+ *     template nor a shell script can collide with a ${VARIABLE}.
+ *   - The pod template carries the checksum, so a theme or script change is also
+ *     a rollout: an initContainer only unpacks on pod start.
  *
- * The output is deterministic - no timestamps, sorted keys - because CI rebuilds
- * it and fails if the committed ConfigMap differs.
+ * `--check` verifies the committed ConfigMaps instead of writing them: same keys,
+ * and every payload decompresses to the file it was packed from. It compares
+ * decoded bytes on purpose - gzip output differs between zlib versions, so a byte
+ * comparison would fail in CI for a theme nobody touched.
  */
 
 import { execFileSync } from "node:child_process"
@@ -27,10 +31,11 @@ import { createHash } from "node:crypto"
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
 import { dirname, join, relative, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
-import { gzipSync } from "node:zlib"
+import { gunzipSync, gzipSync } from "node:zlib"
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..")
 const themeDir = join(repo, "theme")
+const check = process.argv.includes("--check")
 
 /* Not part of the theme Ghost runs: the dependency tree, the lockfile, and the
    Tailwind source (its compiled output in assets/built is what Ghost loads). */
@@ -42,9 +47,10 @@ const walk = (dir) => {
   for (const name of readdirSync(dir).sort()) {
     if (SKIP.has(name)) continue
     const path = join(dir, name)
-    const relativePath = relative(themeDir, path) + (statSync(path).isDirectory() ? "/" : "")
+    const isDirectory = statSync(path).isDirectory()
+    const relativePath = relative(themeDir, path) + (isDirectory ? "/" : "")
     if (SKIP_PREFIXES.some((prefix) => relativePath.startsWith(prefix))) continue
-    if (statSync(path).isDirectory()) found.push(...walk(path))
+    if (isDirectory) found.push(...walk(path))
     else found.push(path)
   }
   return found
@@ -52,87 +58,108 @@ const walk = (dir) => {
 
 /* ------------------------------------------------------------------- build */
 
-console.log("· tailwind")
-execFileSync("npm", ["run", "--silent", "build"], { cwd: themeDir, stdio: "inherit" })
+if (!check) {
+  console.log("· tailwind")
+  execFileSync("npm", ["run", "--silent", "build"], { cwd: themeDir, stdio: "inherit" })
+}
 
-/* --------------------------------------------------------------- pack it */
+/* ------------------------------------------------------------------- pack */
 
-const files = walk(themeDir)
-const binaryData = {}
+/* theme/ is the theme; everything else the pods need ships as a second ConfigMap,
+   because a script inline in a manifest is a pile of "$" signs for Flux's
+   envsubst to substitute away. Keeping them as files also means they are linted
+   and testable. */
+const themeFiles = walk(themeDir).map((path) => ({ name: relative(themeDir, path), path }))
+const scriptFiles = ["install-theme.sh", "backup.mjs", "lib/ghost-admin.mjs"].map((name) => ({
+  name,
+  path: join(repo, "scripts", name),
+}))
+
+const payloads = new Map()
 const digest = createHash("sha256")
 
-for (const file of files) {
-  const name = relative(themeDir, file)
-  const key = `${name.replaceAll("/", "__")}.gz`
-  const bytes = readFileSync(file)
-  digest.update(name)
-  digest.update(bytes)
-  binaryData[key] = gzipSync(bytes, { level: 9 }).toString("base64")
+const pack = (entries) => {
+  const binaryData = {}
+  for (const { name, path } of entries) {
+    // A ConfigMap key may not contain a slash: "lib/ghost-admin.mjs" is stored as
+    // "lib__ghost-admin.mjs.gz" and the CronJob's initContainer turns it back.
+    const key = `${name.replaceAll("/", "__")}.gz`
+    const bytes = readFileSync(path)
+    digest.update(name)
+    digest.update(bytes)
+    payloads.set(key, bytes)
+    binaryData[key] = gzipSync(bytes, { level: 9 }).toString("base64")
+  }
+  return binaryData
 }
 
-const manifest = {
+const themeData = pack(themeFiles)
+const scriptData = pack(scriptFiles)
+const checksum = digest.digest("hex").slice(0, 32)
+
+const manifestFor = (name, binaryData) => ({
   apiVersion: "v1",
   kind: "ConfigMap",
-  metadata: {
-    name: "lucian-ghost-theme",
-    namespace: "services",
-    labels: { app: "lucian-ghost" },
-  },
+  metadata: { name, namespace: "services", labels: { app: "lucian-ghost" } },
   binaryData,
-}
+})
 
-const out = join(repo, "base", "theme.configmap.json")
-writeFileSync(out, JSON.stringify(manifest, null, 2) + "\n")
-
-const bytes = Object.values(binaryData).reduce((total, value) => total + value.length, 0)
-console.log(`· theme: ${files.length} files, ${(bytes / 1024).toFixed(0)} KiB base64 -> ${relative(repo, out)}`)
-
-/* ------------------------------------------------ and the pod-side shell */
-
-/* The init and backup scripts travel the same way and for the same reason: a
-   shell script inline in a manifest is a pile of "$" signs for envsubst to eat.
-   Keeping them as files also means they can be linted and run locally. */
-const scriptFiles = ["install-theme.sh", "backup.mjs", "lib/ghost-admin.mjs"]
-const scriptData = {}
-for (const name of scriptFiles) {
-  const bytes = readFileSync(join(repo, "scripts", name))
-  digest.update(name)
-  digest.update(bytes)
-  // Same flattening as the theme: a ConfigMap key may not contain a slash, so
-  // "lib/ghost-admin.mjs" is stored as "lib__ghost-admin.mjs.gz" and the
-  // CronJob's initContainer turns it back before node runs it.
-  scriptData[`${name.replaceAll("/", "__")}.gz`] = gzipSync(bytes, { level: 9 }).toString("base64")
-}
-
+const themeOut = join(repo, "base", "theme.configmap.json")
 const scriptsOut = join(repo, "base", "scripts.configmap.json")
-writeFileSync(
-  scriptsOut,
-  JSON.stringify(
-    {
-      apiVersion: "v1",
-      kind: "ConfigMap",
-      metadata: {
-        name: "lucian-ghost-scripts",
-        namespace: "services",
-        labels: { app: "lucian-ghost" },
-      },
-      binaryData: scriptData,
-    },
-    null,
-    2,
-  ) + "\n",
-)
+const deploymentPath = join(repo, "base", "deployment.yaml")
+
+/* -------------------------------------------------------- verify, or write */
+
+if (check) {
+  let problem = false
+  const complain = (message) => {
+    console.log(`::error::${message}`)
+    problem = true
+  }
+
+  for (const [path, expected] of [
+    [themeOut, manifestFor("lucian-ghost-theme", themeData)],
+    [scriptsOut, manifestFor("lucian-ghost-scripts", scriptData)],
+  ]) {
+    const committed = JSON.parse(readFileSync(path, "utf8"))
+    const keys = Object.keys(expected.binaryData).sort()
+    const committedKeys = Object.keys(committed.binaryData ?? {}).sort()
+
+    if (keys.join(",") !== committedKeys.join(",")) {
+      complain(`${relative(repo, path)} packs a different set of files than the repository`)
+      continue
+    }
+
+    for (const key of keys) {
+      const packed = gunzipSync(Buffer.from(committed.binaryData[key], "base64"))
+      if (!packed.equals(payloads.get(key))) {
+        complain(`${relative(repo, path)} is stale for ${key.replaceAll("__", "/")}`)
+      }
+    }
+  }
+
+  if (!readFileSync(deploymentPath, "utf8").includes(`checksum/theme: "${checksum}"`)) {
+    complain("base/deployment.yaml does not carry the current checksum/theme")
+  }
+
+  if (problem) {
+    console.log("Run scripts/build-theme.mjs and commit the result.")
+    process.exit(1)
+  }
+
+  console.log(`· theme and scripts match the repository (${themeFiles.length + scriptFiles.length} files, checksum ${checksum.slice(0, 12)})`)
+  process.exit(0)
+}
+
+writeFileSync(themeOut, JSON.stringify(manifestFor("lucian-ghost-theme", themeData), null, 2) + "\n")
+writeFileSync(scriptsOut, JSON.stringify(manifestFor("lucian-ghost-scripts", scriptData), null, 2) + "\n")
+
+const base64Bytes = Object.values(themeData).reduce((total, value) => total + value.length, 0)
+console.log(`· theme: ${themeFiles.length} files, ${(base64Bytes / 1024).toFixed(0)} KiB base64 -> ${relative(repo, themeOut)}`)
 console.log(`· scripts: ${scriptFiles.length} files -> ${relative(repo, scriptsOut)}`)
 
-/* ------------------------------------------------- and stamp the checksum */
-
-const checksum = digest.digest("hex").slice(0, 32)
-const deploymentPath = join(repo, "base", "deployment.yaml")
 const deployment = readFileSync(deploymentPath, "utf8")
-const stamped = deployment.replace(
-  /checksum\/theme: "[0-9a-f]*"/,
-  `checksum/theme: "${checksum}"`,
-)
+const stamped = deployment.replace(/checksum\/theme: "[0-9a-f]*"/, `checksum/theme: "${checksum}"`)
 
 if (stamped === deployment) {
   if (!deployment.includes(`checksum/theme: "${checksum}"`)) {

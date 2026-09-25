@@ -47,13 +47,11 @@ jobs:
       - name: Templates are sound
         run: node scripts/check-templates.mjs
 
-      - name: Theme and ConfigMaps rebuild byte-identically
+      # Not a byte comparison: gzip output differs between zlib versions, so that
+      # would fail for a theme nobody touched. --check compares what the committed
+      # ConfigMaps decompress to against the repository.
+      - name: ConfigMaps match the repository
         run: |
           set -euo pipefail
           npm --prefix theme ci
-          node scripts/build-theme.mjs
-          if ! git diff --quiet; then
-            echo "::error::build output differs from the committed ConfigMaps - run the build and commit"
-            git --no-pager diff --stat
-            exit 1
-          fi
+          node scripts/build-theme.mjs --check
