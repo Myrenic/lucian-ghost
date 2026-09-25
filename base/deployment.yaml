@@ -128,9 +128,14 @@ spec:
               memory: 256Mi
             limits:
               memory: 768Mi
+          # Ghost answers a request whose Host is not its configured url with a
+          # 301 to that url, so an HTTP probe without a Host header never
+          # settles: the kubelet asks the pod, gets "go to the public URL", and
+          # the public URL is not routable until the pod is Ready. The startup
+          # gate only needs to know Ghost is listening; the readiness probe asks
+          # for the real thing, with the real host.
           startupProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
             periodSeconds: 5
             failureThreshold: 40
@@ -138,6 +143,9 @@ spec:
             httpGet:
               path: /
               port: http
+              httpHeaders:
+                - name: Host
+                  value: "lucian.${SECRET_DOMAIN_0}"
             periodSeconds: 15
             timeoutSeconds: 5
           securityContext:
