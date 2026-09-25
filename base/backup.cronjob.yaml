@@ -44,6 +44,11 @@ metadata:
     app.kubernetes.io/component: backup
 spec:
   schedule: "17 3 * * *"
+  # Off until it has been run by hand once and seen to work: a nightly job that
+  # fails is noise, and a backup nobody checked is worse than a documented gap.
+  # Remove this line after `kubectl -n services create job --from=cronjob/lucian-ghost-backup test`
+  # comes back Complete and leaves a JSON file on the backups claim.
+  suspend: true
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3

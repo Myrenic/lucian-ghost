@@ -24,7 +24,14 @@ Everything that used to be a page is now a **Ghost page** - 40 of them, imported
 with their text, headings, lists and internal links intact.
 
 - **Add or edit a page**: Ghost admin -> Pages -> New page. Write, then Publish.
-  The URL follows the title; Ghost's own SEO fields are on the right.
+  The URL follows the title; Ghost's own SEO fields are on the right. All 40
+  imported pages are native editor content - paragraphs, headings, lists, rules,
+  one button card, and not a single raw-HTML block - so they edit like anything
+  written in Ghost.
+- **Articles** are the other half: Posts -> New post writes to `/artikelen/`, and
+  the homepage lists the three newest once any exist. Ghost keeps the two apart
+  on purpose (a page is a standing page, a post is a dated article), and this
+  site's existing content is all pages.
 - **Menu**: Settings -> Design -> Navigation (the header) and Secondary
   navigation (the footer's Info column). Both are Ghost settings, so no deploy.
 - **Hero text, statement, contact block, social links**: Settings -> Design ->
@@ -100,13 +107,35 @@ Bootstrapping a fresh install, once:
    a fresh install serves Ghost's starter theme, and ours is only *present* in
    the volume until something selects it.
 
+## Signing in
+
+Ghost admin is at `https://lucian.<domain>/ghost/`, and the Traefik route keeps
+that path on the LAN - a CMS admin reachable from the internet is a liability
+nobody asked for. The owner account is `info@luciancs.nl`; its password was
+generated when the instance was bootstrapped and handed over with it.
+
+Ghost 6 emails a six-digit code for every login after a user's first, so without
+mail nobody can sign in at all. `security__staffDeviceVerification` is therefore
+`false` on the deployment: the password is the only factor until an SMTP Secret
+exists, which is defensible behind a LAN-only route and should be revisited at
+go-live. Removing that env var restores the default.
+
+Adding a second staff member is an **invite**, and invites are emails, so that
+needs the mail Secret too - there is no other path in Ghost's admin. Until then,
+automation can use API keys: staff tokens for full access, integration keys for
+content.
+
 ## Operations
 
-- **Backups**: a nightly CronJob writes `ghost export` JSON into
-  `content/backups/` on the same volume and keeps a week. That covers a bad edit
-  or a wrong deletion. It does not cover losing the volume - this cluster has no
-  off-cluster copy, so if the content matters, copy that directory (or the claim)
-  somewhere else. Restore by importing the JSON in Ghost admin.
+- **Backups**: a CronJob asks Ghost for its own export over the Admin API
+  (`/ghost/api/admin/db/`) and keeps a week on a small claim of its own - it
+  deliberately does not mount the content volume, which is ReadWriteOnce and held
+  by the Ghost pod, and which a second Ghost process against the same SQLite file
+  should not touch. It ships **suspended**: run it once by hand, confirm it leaves
+  a JSON file, then drop the `suspend: true`. That covers a bad edit or a wrong
+  deletion; it does not cover losing the volume, and the copies sit on the same
+  cluster, so copy them off it if the content matters. Restore by importing the
+  JSON in Ghost admin.
 - **Mail**: optional Secret `lucian-ghost-mail`, keys are Ghost's own config
   names (`mail__transport`, `mail__options__host`, `mail__options__port`,
   `mail__options__auth__user`, `mail__options__auth__pass`, `mail__from`). Only
