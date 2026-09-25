@@ -4,8 +4,10 @@
      Kenniscentrum articles when there are any. --}}
 <section class="relative isolate flex min-h-[34rem] items-center overflow-hidden bg-foreground lg:min-h-[40rem]">
     {{#if @custom.hero_image}}
-        <img src="{{img_url @custom.hero_image size="xl"}}"
-             srcset="{{img_url @custom.hero_image size="m"}} 960w, {{img_url @custom.hero_image size="l"}} 1280w, {{img_url @custom.hero_image size="xl"}} 2000w"
+        {{!-- WebP, not the JPEG the upload was: this is the LCP element, and
+              Ghost re-encodes it smaller than it can re-send the original. --}}
+        <img src="{{img_url @custom.hero_image size="xl" format="webp"}}"
+             srcset="{{img_url @custom.hero_image size="m" format="webp"}} 960w, {{img_url @custom.hero_image size="l" format="webp"}} 1280w, {{img_url @custom.hero_image size="xl" format="webp"}} 2000w"
              sizes="100vw" alt="" aria-hidden="true" fetchpriority="high"
              class="absolute inset-0 -z-20 size-full object-cover object-[52%_35%]">
     {{else}}

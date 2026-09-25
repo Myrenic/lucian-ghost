@@ -276,6 +276,12 @@ async function syncSettings({ hero, og, terms }) {
     { key: "explore_ping", value: false },
     { key: "explore_ping_growth", value: false },
     { key: "timezone", value: "Europe/Amsterdam" },
+    // No memberships, no tips, no recommendations: the client sells services,
+    // not subscriptions. This also has Ghost stop offering a signup UI, which
+    // is what pulls Portal in (the theme excludes it as well).
+    { key: "members_signup_access", value: "none" },
+    { key: "donations_enabled", value: false },
+    { key: "recommendations_enabled", value: false },
     // The interior-page hero band uses the same photograph as the homepage;
     // Ghost's default cover is its own stock image.
     { key: "cover_image", value: hero },

@@ -10,8 +10,15 @@
     <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{meta_title}}{{/is}}</title>
 
     {{!-- Ghost writes the canonical, the description, the Open Graph and
-          Twitter tags and the structured data here. --}}
-    {{ghost_head}}
+          Twitter tags and the structured data here.
+
+          "exclude" keeps Ghost's two frontend apps off the site: Portal (the
+          membership signup widget, 665 KiB from jsDelivr) and Sodo Search (86
+          KiB). This client has no memberships and no search box, so both were
+          pure weight - together they were most of a mobile page load, and
+          Portal's data fetching against a memberless site also logged three
+          403s and an exception in the console. --}}
+    {{ghost_head exclude="portal,search"}}
 
     <link rel="stylesheet" href="{{asset "built/screen.css"}}">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{asset "fonts/rubik-latin.woff2"}}">
