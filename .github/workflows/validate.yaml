@@ -38,10 +38,17 @@ jobs:
             sh -n "$script"
           done
 
-      # Ghost's own linter: the client's admin shows its verdict on the theme, so
-      # a theme that fails it fails in front of them.
+      # Ghost's own linter, and the verdict the client sees in their admin. Not
+      # --fatal: that flag means "show only fatal errors", so it reported a clean
+      # theme while the admin listed two errors and three warnings.
       - name: Ghost theme compatibility
-        run: npx --yes gscan@latest --fatal theme
+        run: |
+          set -euo pipefail
+          npx --yes gscan@latest theme | tee /tmp/gscan.txt
+          if grep -qE "Your theme has" /tmp/gscan.txt; then
+            echo "::error::gscan found problems - see the report above"
+            exit 1
+          fi
 
       # And the checks GScan does not make - see the header of the script.
       - name: Templates are sound

@@ -33,8 +33,11 @@
    copied from the static site's index.css; keeping them identical is what makes
    the two builds render the same. */
 @theme {
-  --font-sans: "Rubik", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Rubik", ui-sans-serif, system-ui, sans-serif;
+  /* Design -> Typography writes these two; with nothing chosen there, the
+     client's Rubik stays. Without them the font picker in the admin would do
+     nothing at all. */
+  --font-sans: var(--gh-font-body, "Rubik", ui-sans-serif, system-ui, sans-serif);
+  --font-heading: var(--gh-font-heading, "Rubik", ui-sans-serif, system-ui, sans-serif);
 
   /* The brand maroon from the original theme (#800000), warmed a few degrees so
      it reads as oxblood rather than pure red. */
