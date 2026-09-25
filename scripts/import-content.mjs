@@ -410,6 +410,10 @@ function writeContentConfigMap() {
 
     // Ghost's default collection lives at "/", which this theme uses for the
   // homepage: articles need a home of their own or they exist only by URL.
+  // No "data:" key here on purpose: Ghost validates it against its own sources
+  // (tag.<slug>, and nothing else) and refuses to boot the whole site otherwise.
+  // The collection's own name lives in the theme (index.hbs), which is the only
+  // place Ghost lets a custom collection be titled.
   const routes = `# Moving the collection off "/" also moves the homepage off it:
 # without the first line, "/" answers 404 and only /artikelen/ exists.
 routes:
@@ -420,9 +424,6 @@ collections:
     permalink: /artikelen/{slug}/
     template: index
     filter: 'tag:-hash-none'
-    data:
-      title: Artikelen
-      description: Artikelen van LUCIAN over administratie, belastingen en financien.
 taxonomies:
   tag: /tag/{slug}/
   author: /author/{slug}/

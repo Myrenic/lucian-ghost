@@ -8,7 +8,7 @@
     {{! Two routes need a title of their own: the homepage (the client's, not the
         site name) and the article list, which Ghost titles with the bare site
         name because the collection has none. }}
-    <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{#is "index"}}Artikelen - {{@site.title}}{{else}}{{meta_title}}{{/is}}{{/is}}</title>
+    <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{#is "index"}}{{#if tag}}{{tag.name}}{{else}}{{#if author}}{{author.name}}{{else}}Artikelen{{/if}}{{/if}} - {{@site.title}}{{else}}{{meta_title}}{{/is}}{{/is}}</title>
 
     {{!-- Ghost writes the canonical, the description, the Open Graph and
           Twitter tags and the structured data here.

@@ -33,11 +33,11 @@ spec:
         # Stamped by scripts/build-theme.mjs on every build. The theme is
         # unpacked by an initContainer, which only runs when a pod starts - so
         # without this, a new ConfigMap would be applied and never read.
-        checksum/theme: "bf9b9ca7a09c541d73f147a4921353ba"
+        checksum/theme: "341ff403235baae95c300c58c2894831"
         # Same for the content directory: routes.yaml is read once, at boot, and a
         # stale copy costs a 404 on every article. Stamped by
         # scripts/import-content.mjs.
-        checksum/content: "f1d3bf1d47b0ad4842eed784ee67798c"
+        checksum/content: "799df892b8435d1db14de626c9425eac"
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
