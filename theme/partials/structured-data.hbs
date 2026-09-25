@@ -1,0 +1,34 @@
+{{!-- Ghost writes a WebSite node on the homepage and an Article node for each
+     page. Neither tells a search engine the one thing a local bookkeeping firm
+     wants it to know: what the business is, where it is, and how to reach it.
+
+     This is the client's own data, from the theme settings, so it stays right
+     when they change their number in Design. Type AccountingService rather than
+     LocalBusiness: it is the schema.org type for exactly this trade.
+
+     sameAs is LinkedIn only, and last: all of these are optional text settings,
+     and a JSON array with three conditional members is a bracket-and-comma trap.
+     Being last means one {{#if}} can drop the whole property. --}}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "AccountingService",
+    "name": "{{@site.title}}",
+    "description": "{{@site.description}}",
+    "url": "{{@site.url}}",
+    "email": "{{@custom.contact_email}}",
+    "telephone": "{{@custom.contact_phone}}",
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "{{@custom.contact_street}}",
+        "postalCode": "{{@custom.contact_postal_code}}",
+        "addressLocality": "{{@custom.contact_city}}",
+        "addressCountry": "NL"
+    },
+    "founder": {
+        "@type": "Person",
+        "name": "{{@custom.contact_name}}"
+    }{{#if @custom.social_linkedin}},
+    "sameAs": ["{{@custom.social_linkedin}}"]{{/if}}
+}
+</script>

@@ -420,6 +420,9 @@ collections:
     permalink: /artikelen/{slug}/
     template: index
     filter: 'tag:-hash-none'
+    data:
+      title: Artikelen
+      description: Artikelen van LUCIAN over administratie, belastingen en financien.
 taxonomies:
   tag: /tag/{slug}/
   author: /author/{slug}/
