@@ -9,7 +9,7 @@
 # Volumes, as mounted by base/deployment.yaml:
 #   /theme      lucian-ghost-theme     the packed theme, keys flattened with __
 #   /scripts    lucian-ghost-scripts   this file and backup.sh
-#   /redirects  lucian-ghost-redirects redirects.json for the old URLs
+#   /content-dir lucian-ghost-content  redirects.json (old URLs) and routes.yaml
 #   /content    the claim              Ghost's content directory
 
 set -eu
@@ -31,9 +31,11 @@ for file in /theme/*; do
   gunzip -c "$file" > "$out"
 done
 
-# Ghost reads redirects.json from the content directory: the old WordPress
-# .html URLs, written by scripts/import-content.mjs.
+# Ghost reads both of these from the content directory: redirects.json carries
+# the old WordPress .html URLs, routes.yaml puts written articles on /artikelen/.
+# Both are written by scripts/import-content.mjs.
 mkdir -p /content/data
-cp /redirects/redirects.json /content/data/redirects.json
+cp /content-dir/redirects.json /content/data/redirects.json
+cp /content-dir/routes.yaml /content/data/routes.yaml
 
 echo "installed $(find . -type f | wc -l) theme files"

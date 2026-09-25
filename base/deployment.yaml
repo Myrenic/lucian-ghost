@@ -33,7 +33,7 @@ spec:
         # Stamped by scripts/build-theme.mjs on every build. The theme is
         # unpacked by an initContainer, which only runs when a pod starts - so
         # without this, a new ConfigMap would be applied and never read.
-        checksum/theme: "52d1e8d53d4e571e7ef51ae666f7445e"
+        checksum/theme: "743b98b862f037f5f33283592872694d"
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
@@ -64,8 +64,8 @@ spec:
             - name: theme
               mountPath: /theme
               readOnly: true
-            - name: redirects
-              mountPath: /redirects
+            - name: content-dir
+              mountPath: /content-dir
               readOnly: true
             - name: content
               mountPath: /content
@@ -166,9 +166,9 @@ spec:
         - name: theme
           configMap:
             name: lucian-ghost-theme
-        - name: redirects
+        - name: content-dir
           configMap:
-            name: lucian-ghost-redirects
+            name: lucian-ghost-content
         - name: content
           persistentVolumeClaim:
             claimName: lucian-ghost-content

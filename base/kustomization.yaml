@@ -3,13 +3,13 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   # All three are generated and committed: theme.configmap.json and
-  # scripts.configmap.json by scripts/build-theme.mjs, redirects.configmap.json
+  # scripts.configmap.json by scripts/build-theme.mjs, content.configmap.json
   # by scripts/import-content.mjs. Their contents travel as gzipped base64 because
   # a ConfigMap key may not contain a slash and because Flux runs envsubst over
   # everything it applies.
   - ./theme.configmap.json
   - ./scripts.configmap.json
-  - ./redirects.configmap.json
+  - ./content.configmap.json
   - ./pvc.yaml
   - ./deployment.yaml
   - ./service.yaml

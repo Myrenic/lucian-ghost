@@ -369,16 +369,28 @@ async function syncPages() {
     }
   }
 
-  // Ghost's starter page is not part of the client's site.
-  const starter = bySlug.get("about")
-  if (starter && !pagesByPath.has("/about.html")) {
+  await removeStarterContent(existing)
+}
+
+/** Ghost's own starter content is not part of the client's site. */
+async function removeStarterContent(pages) {
+  const starterPage = pages.find((page) => page.slug === "about")
+  if (starterPage && !pagesByPath.has("/about.html")) {
     log("· removing Ghost's starter page (about)")
-    if (!dryRun) await request(`/ghost/api/admin/pages/${starter.id}/`, { method: "DELETE" })
+    if (!dryRun) await request(`/ghost/api/admin/pages/${starterPage.id}/`, { method: "DELETE" })
+  }
+
+  const posts = dryRun ? [] : (await request("/ghost/api/admin/posts/?limit=all")).posts
+  for (const post of posts) {
+    if (post.slug !== "coming-soon") continue
+    log("· removing Ghost's starter post (coming-soon)")
+    if (!dryRun) await request(`/ghost/api/admin/posts/${post.id}/`, { method: "DELETE" })
   }
 }
 
-/** The old WordPress URLs, so nothing that was linked to a .html page 404s. */
-function writeRedirects() {
+/** The old WordPress URLs, so nothing that was linked to a .html page 404s, plus
+    the route that turns written articles into a list at /artikelen/. */
+function writeContentConfigMap() {
   const rules = []
   for (const page of pages) {
     if (page.path === "/") continue
@@ -389,16 +401,38 @@ function writeRedirects() {
   // WordPress' own front page shortlink.
   rules.push({ from: "^/index\\.html$", to: "/", permanent: true })
 
-  const manifest = {
-    apiVersion: "v1",
-    kind: "ConfigMap",
-    metadata: { name: "lucian-ghost-redirects", namespace: "services", labels: { app: "lucian-ghost" } },
-    data: { "redirects.json": JSON.stringify(rules, null, 2) },
-  }
+    // Ghost's default collection lives at "/", which this theme uses for the
+  // homepage: articles need a home of their own or they exist only by URL.
+  const routes = `routes:
+collections:
+  /artikelen/:
+    permalink: /artikelen/{slug}/
+    template: index
+    filter: 'tag:-hash-none'
+taxonomies:
+  tag: /tag/{slug}/
+  author: /author/{slug}/
+`
 
-  const out = join(repo, "base", "redirects.configmap.json")
-  writeFileSync(out, JSON.stringify(manifest, null, 2) + "\n")
-  log(`· redirects: ${rules.length} rules -> ${out}`)
+  const out = join(repo, "base", "content.configmap.json")
+  writeFileSync(
+    out,
+    JSON.stringify(
+      {
+        apiVersion: "v1",
+        kind: "ConfigMap",
+        metadata: {
+          name: "lucian-ghost-content",
+          namespace: "services",
+          labels: { app: "lucian-ghost" },
+        },
+        data: { "redirects.json": JSON.stringify(rules, null, 2), "routes.yaml": routes },
+      },
+      null,
+      2,
+    ) + "\n",
+  )
+  log(`· redirects: ${rules.length} rules and routes.yaml -> ${out}`)
   return rules
 }
 
@@ -435,7 +469,7 @@ const uploads = await syncUploads()
 await syncSettings(uploads)
 await syncThemeSettings(uploads)
 await syncPages()
-writeRedirects()
+writeContentConfigMap()
 
 if (!dryRun) {
   const failed = await verify()
