@@ -113,6 +113,14 @@ spec:
               value: /var/lib/ghost/content
             - name: logging__level
               value: info
+            # Ghost 6 emails a 6-digit code for every login after the first, so
+            # without mail nobody can sign in or invite a colleague. This turns
+            # that off: the password is the only factor until an SMTP Secret
+            # exists. Drop it once lucian-ghost-mail is configured - and note
+            # that /ghost is LAN-only either way, which is what makes it
+            # defensible now.
+            - name: security__staffDeviceVerification
+              value: "false"
           # Mail is only needed to send the sign-in verification code, and for
           # any newsletter the client starts later. Optional on purpose: without
           # the Secret Ghost runs, but a staff login from a new device cannot
