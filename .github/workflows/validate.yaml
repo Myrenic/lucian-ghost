@@ -49,6 +49,30 @@ jobs:
             sh -n "$script"
           done
 
+      - name: No moustaches inside Handlebars comments
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import { readFileSync, readdirSync } from "node:fs"
+            const files = ["."].flatMap((dir) => readdirSync(dir).filter((f) => f.endsWith(".hbs")))
+              .concat(readdirSync("theme/partials").filter((f) => f.endsWith(".hbs")).map((f) => "theme/partials/" + f))
+            let bad = 0
+            for (const file of files) {
+              const source = readFileSync(file, "utf8")
+              for (const match of source.matchAll(/\{\{!/g)) {
+                const end = source.indexOf("}}", match.index)
+                const body = source.slice(match.index + 3, end)
+                // a nested opening brace means the comment ended early and the
+                // rest of it is being parsed as template
+                if (body.includes("{{")) {
+                  console.log("::error file=" + file + "::comment contains an opening brace, so it ends early: " + body.slice(0, 60))
+                  bad = 1
+                }
+              }
+            }
+            process.exit(bad)
+          '
+
       - name: Theme templates are balanced
         run: |
           set -euo pipefail

@@ -6,10 +6,11 @@
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#800000">
     {{! The homepage needs a title of its own: the client's, not the site name.
-        Custom collections get none from Ghost - a collection written in
-        routes.yaml has no route context, so {{meta_title}} is the site name
-        there, and no {{#is}} can single it out. The heading in index.hbs is
-        where that page names itself. }}
+        A custom collection gets none from Ghost - one written in routes.yaml has
+        no route context, so meta_title is the site name there, and no is-check
+        can single it out. The heading in index.hbs is where that page names
+        itself. (No mustaches in this comment: Handlebars ends a comment at the
+        first closing brace pair, and anything after it becomes template again.) }}
     <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{meta_title}}{{/is}}</title>
 
     {{!-- Ghost writes the canonical, the description, the Open Graph and
