@@ -92,7 +92,7 @@ console.log(`· theme: ${files.length} files, ${(bytes / 1024).toFixed(0)} KiB b
 /* The init and backup scripts travel the same way and for the same reason: a
    shell script inline in a manifest is a pile of "$" signs for envsubst to eat.
    Keeping them as files also means they can be linted and run locally. */
-const scriptFiles = ["install-theme.sh", "backup.sh"]
+const scriptFiles = ["install-theme.sh", "backup.mjs", "lib/ghost-admin.mjs"]
 const scriptData = {}
 for (const name of scriptFiles) {
   const bytes = readFileSync(join(repo, "scripts", name))

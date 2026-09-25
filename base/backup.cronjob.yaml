@@ -1,11 +1,38 @@
-# A nightly content export, because this cluster has no other backup: no
-# Longhorn RecurringJob, no off-cluster copy, and the database lives on the same
-# volume. `ghost export` writes the whole site - pages, settings, theme choices -
-# as JSON next to the database, and the last seven are kept.
+# A nightly content export, because this cluster has no other backup: no Longhorn
+# RecurringJob, no off-cluster copy, and the database sits on a volume nothing
+# else copies.
 #
-# What this protects: a bad edit, a page deleted by mistake, a theme setting
-# nobody can remember. What it does not: losing the volume. Copy these files
-# (or the whole claim) somewhere off the cluster.
+# The job asks the running Ghost for its export over the Admin API instead of
+# reading the content volume. That volume is ReadWriteOnce and already mounted by
+# the Ghost pod, so a second pod cannot have it at all (a CronJob on the same
+# claim sits in ContainerCreating for ever), and a second Ghost process against
+# the same SQLite file is not something to run on a schedule. The export lands on
+# a small volume of its own.
+#
+# Needs Secret lucian-ghost-backup with key admin_api_key - a plain integration
+# key is enough, Ghost's token allowlist lets integrations read /db/:
+#
+#   kubectl -n services create secret generic lucian-ghost-backup \
+#     --from-literal=admin_api_key=<id>:<secret>
+#
+# Without it the job cannot start, which is the loudest way to say "backups are
+# not configured".
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: lucian-ghost-backups
+  namespace: services
+  labels:
+    app: lucian-ghost
+    app.kubernetes.io/component: backup
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: longhorn-2-replicas
+  resources:
+    requests:
+      storage: 1Gi
+
+---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -40,44 +67,69 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
             seccompProfile:
               type: RuntimeDefault
+          initContainers:
+            # The script ships gzipped and flattened (a ConfigMap key may not
+            # contain a slash, and Flux's envsubst must not see shell or JS
+            # variables), so it is unpacked before node runs it.
+            - name: unpack
+              image: docker.io/library/busybox:1.37
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  mkdir -p /scripts/lib
+                  gunzip -c /packed/backup.mjs.gz > /scripts/backup.mjs
+                  gunzip -c /packed/lib__ghost-admin.mjs.gz > /scripts/lib/ghost-admin.mjs
+              volumeMounts:
+                - name: packed
+                  mountPath: /packed
+                  readOnly: true
+                - name: scripts
+                  mountPath: /scripts
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 16Mi
+                limits:
+                  memory: 32Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+                readOnlyRootFilesystem: true
+                seccompProfile:
+                  type: RuntimeDefault
           containers:
             - name: export
               image: docker.io/library/ghost:6-alpine
               command:
-                - /bin/sh
-                - -c
-                # Same reason as the initContainer: the script is a ConfigMap of
-                # gzipped base64 so envsubst cannot touch its variables.
-                - gunzip -c /scripts/backup.sh.gz | sh
+                - node
+                - /scripts/backup.mjs
               env:
-                - name: url
+                - name: GHOST_URL
                   value: "https://lucian.${SECRET_DOMAIN_0}"
-                - name: NODE_ENV
-                  value: production
-                - name: TZ
-                  value: "${TZ}"
-                - name: database__client
-                  value: sqlite3
-                - name: database__connection__filename
-                  value: /var/lib/ghost/content/data/ghost.db
-                - name: database__useNullAsDefault
-                  value: "true"
-                - name: logging__level
-                  value: warn
+                - name: BACKUP_DIR
+                  value: /backups
+                - name: GHOST_ADMIN_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: lucian-ghost-backup
+                      key: admin_api_key
               volumeMounts:
                 - name: scripts
                   mountPath: /scripts
                   readOnly: true
-                - name: content
-                  mountPath: /var/lib/ghost/content
+                - name: backups
+                  mountPath: /backups
                 - name: tmp
                   mountPath: /tmp
               resources:
                 requests:
-                  cpu: 50m
-                  memory: 256Mi
+                  cpu: 20m
+                  memory: 128Mi
                 limits:
-                  memory: 768Mi
+                  memory: 256Mi
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
@@ -86,11 +138,13 @@ spec:
                 seccompProfile:
                   type: RuntimeDefault
           volumes:
-            - name: scripts
+            - name: packed
               configMap:
                 name: lucian-ghost-scripts
-            - name: content
+            - name: scripts
+              emptyDir: {}
+            - name: backups
               persistentVolumeClaim:
-                claimName: lucian-ghost-content
+                claimName: lucian-ghost-backups
             - name: tmp
               emptyDir: {}
