@@ -155,6 +155,40 @@ content.
   `robots.txt` allows crawling, which is correct once the site is on the client's
   own domain.
 
+## Search engines
+
+Everything Ghost generates is in place and carries the import's own SEO data:
+per-page titles, meta descriptions, canonicals, Open Graph, Twitter cards, JSON-LD
+and a sitemap. On top of it the theme states the business itself - an
+`AccountingService` (schema.org's type for a bookkeeping firm) with the address
+and phone from the theme settings - which is what a local search result is built
+from.
+
+`lucian.<domain>` is deliberately **not indexable**: Traefik sends
+`X-Robots-Tag: noindex, nofollow`, so this preview cannot compete with the
+client's own site in a result. Lighthouse scores the site 66 for SEO on that
+single audit, and 100 on everything else.
+
+Going live on the client's domain, in order:
+
+1. Add the domain and its certificate to the cluster (the same way the current
+   one is served: a `domain-N-prod-tls` secret and a route host).
+2. Point Ghost at it: set `url` on the Deployment (and the CronJob) to
+   `https://<their-domain>` - Ghost builds canonicals, the sitemap and every
+   absolute link from it, so this is the step that must not be skipped.
+3. Drop the `noindex` middleware from the route in
+   `nebula/kubernetes/apps/network/exposure/lucian.yaml`, and decide about
+   `/ghost`: leave it LAN-only (the office is on this network), put it behind
+   `oauth2-proxy-auth`, or accept Ghost's own sign-in and make it public.
+4. Re-run the import against the new URL, so the redirects point at the client's
+   host rather than this one.
+5. Check `robots.txt` and `sitemap.xml` answer on the new host, and that a
+   handful of old `.html` URLs 301 where they should.
+
+Known gap: `/artikelen/` titles itself with the site name. A collection written
+in `routes.yaml` gets no route context, so no `{{#is}}` can single it out and
+Ghost offers no title of its own - the heading on the page is correct.
+
 ## Differences from the static build, on purpose
 
 - Every interior page shows its name in the hero band; the static build only did
