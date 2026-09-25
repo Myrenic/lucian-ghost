@@ -31,11 +31,12 @@ for file in /theme/*; do
   gunzip -c "$file" > "$out"
 done
 
-# Ghost reads both of these from the content directory: redirects.json carries
-# the old WordPress .html URLs, routes.yaml puts written articles on /artikelen/.
-# Both are written by scripts/import-content.mjs.
-mkdir -p /content/data
+# Ghost reads these from two different places, and it fails silently if they are
+# in the wrong one: redirects.json goes in content/data, routes.yaml in
+# content/settings (Ghost's default routing file lives there). Both are written
+# by scripts/import-content.mjs.
+mkdir -p /content/data /content/settings
 cp /content-dir/redirects.json /content/data/redirects.json
-cp /content-dir/routes.yaml /content/data/routes.yaml
+cp /content-dir/routes.yaml /content/settings/routes.yaml
 
 echo "installed $(find . -type f | wc -l) theme files"
