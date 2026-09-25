@@ -274,6 +274,27 @@
   border-radius: var(--radius-lg);
 }
 
+/* Ghost's editor offers "wide" and "full" width for images and embeds, and a
+   theme that does not style both classes leaves those cards squeezed into the
+   text column. The article sits in a max-w-3xl box inside the page's max-w-6xl,
+   so wide breaks out by a fixed amount and full ignores the frame. */
+.gh-content .kg-width-wide {
+  width: auto;
+  margin-inline: -4rem;
+}
+
+.gh-content .kg-width-full {
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+  max-width: none;
+}
+
+@media (max-width: 768px) {
+  .gh-content .kg-width-wide {
+    margin-inline: 0;
+  }
+}
+
 .gh-content figcaption {
   margin-top: 0.5rem;
   font-size: 0.875rem;
