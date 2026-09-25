@@ -26,6 +26,7 @@
  * are overwritten. Nothing is deleted except Ghost's own starter page.
  */
 
+import { createHash } from "node:crypto"
 import { readFileSync, writeFileSync } from "node:fs"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -418,25 +419,38 @@ taxonomies:
   author: /author/{slug}/
 `
 
+  const contentManifest = {
+    apiVersion: "v1",
+    kind: "ConfigMap",
+    metadata: {
+      name: "lucian-ghost-content",
+      namespace: "services",
+      labels: { app: "lucian-ghost" },
+    },
+    data: { "redirects.json": JSON.stringify(rules, null, 2), "routes.yaml": routes },
+  }
+
   const out = join(repo, "base", "content.configmap.json")
-  writeFileSync(
-    out,
-    JSON.stringify(
-      {
-        apiVersion: "v1",
-        kind: "ConfigMap",
-        metadata: {
-          name: "lucian-ghost-content",
-          namespace: "services",
-          labels: { app: "lucian-ghost" },
-        },
-        data: { "redirects.json": JSON.stringify(rules, null, 2), "routes.yaml": routes },
-      },
-      null,
-      2,
-    ) + "\n",
-  )
-  log(`· redirects: ${rules.length} rules and routes.yaml -> ${out}`)
+  writeFileSync(out, JSON.stringify(contentManifest, null, 2) + "\n")
+
+  // routes.yaml and redirects.json are read when Ghost boots, so a change has to
+  // roll the pod: the deployment carries a checksum of this ConfigMap. Without
+  // it, applying new routing changes nothing until someone restarts Ghost - which
+  // looks exactly like a broken route file.
+  const checksum = createHash("sha256")
+    .update(contentManifest.data["redirects.json"] + contentManifest.data["routes.yaml"])
+    .digest("hex")
+    .slice(0, 32)
+
+  const deploymentPath = join(repo, "base", "deployment.yaml")
+  const deployment = readFileSync(deploymentPath, "utf8")
+  const stamped = deployment.replace(/checksum\/content: "[0-9a-f]*"/, `checksum/content: "${checksum}"`)
+  if (stamped === deployment && !deployment.includes(`checksum/content: "${checksum}"`)) {
+    throw new Error("base/deployment.yaml has no checksum/content annotation to stamp")
+  }
+  writeFileSync(deploymentPath, stamped)
+
+  log(`· redirects: ${rules.length} rules and routes.yaml -> ${out} (checksum ${checksum.slice(0, 12)})`)
   return rules
 }
 
