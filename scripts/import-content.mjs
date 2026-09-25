@@ -403,7 +403,11 @@ function writeContentConfigMap() {
 
     // Ghost's default collection lives at "/", which this theme uses for the
   // homepage: articles need a home of their own or they exist only by URL.
-  const routes = `routes:
+  const routes = `# Moving the collection off "/" also moves the homepage off it:
+# without the first line, "/" answers 404 and only /artikelen/ exists.
+routes:
+  /: home
+
 collections:
   /artikelen/:
     permalink: /artikelen/{slug}/
