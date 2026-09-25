@@ -98,11 +98,15 @@ spec:
             - name: database__client
               value: sqlite3
             - name: database__connection__filename
-              value: content/data/ghost.db
+              value: /var/lib/ghost/content/data/ghost.db
             - name: database__useNullAsDefault
               value: "true"
+            # Absolute on purpose: Ghost builds express-hbs's layout guard from
+            # this path, and a relative one makes it compare "content/themes/lucian"
+            # against absolute layout paths - every page then fails with "does not
+            # reside in content/themes/lucian".
             - name: paths__contentPath
-              value: content
+              value: /var/lib/ghost/content
             - name: logging__level
               value: info
           # Mail is only needed to send the sign-in verification code, and for
