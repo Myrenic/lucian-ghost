@@ -305,6 +305,7 @@ async function syncThemeSettings({ hero }) {
     { key: "hero_heading", value: site.heroHeading },
     { key: "hero_lead", value: home?.description ?? "" },
     { key: "hero_image", value: hero },
+    { key: "home_meta_title", value: "LUCIAN: ontzorger voor ondernemer en particulier" },
     { key: "statement", value: "Ontzorger voor ondernemer en particulier" },
     { key: "contact_name", value: site.contact.name },
     { key: "contact_street", value: site.contact.street },

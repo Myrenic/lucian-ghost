@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#800000">
-    <title>{{meta_title}}</title>
+    {{! The index route's title is the site name unless the theme says otherwise;
+        the client's homepage title is its own thing. }}
+    <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{meta_title}}{{/is}}</title>
 
     {{!-- Ghost writes the canonical, the description, the Open Graph and
           Twitter tags and the structured data here. --}}

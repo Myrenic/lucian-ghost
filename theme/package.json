@@ -45,6 +45,11 @@
         "type": "image",
         "group": "homepage"
       },
+      "home_meta_title": {
+        "type": "text",
+        "group": "homepage",
+        "default": "LUCIAN: ontzorger voor ondernemer en particulier"
+      },
       "statement": {
         "type": "text",
         "group": "homepage",

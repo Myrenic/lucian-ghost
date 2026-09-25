@@ -33,7 +33,7 @@ spec:
         # Stamped by scripts/build-theme.mjs on every build. The theme is
         # unpacked by an initContainer, which only runs when a pod starts - so
         # without this, a new ConfigMap would be applied and never read.
-        checksum/theme: "61457cf17550762d44c0a2d5e6f4e9a5"
+        checksum/theme: "52d1e8d53d4e571e7ef51ae666f7445e"
     spec:
       automountServiceAccountToken: false
       enableServiceLinks: false
