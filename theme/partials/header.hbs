@@ -1,5 +1,8 @@
 <header class="sticky top-0 z-50 bg-background/80 backdrop-blur-md">
-    <div class="page">
+    {{!-- Full width, not the page's max-w-6xl column: the client read the
+          centred column as the menu not spanning the bar, with the Contact
+          button left floating 265px from the right edge at 1440. --}}
+    <div class="w-full px-5 sm:px-6 lg:px-8">
         <div class="flex h-[4.8rem] items-center gap-1">
             <a class="mr-3 font-heading text-[0.9375rem] font-semibold tracking-[0.1em] text-foreground"
                href="{{@site.url}}">{{@site.title}}</a>

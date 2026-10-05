@@ -1,10 +1,14 @@
-{{!-- Client quotes on the photograph, as stock panels in a column. --}}
-<div class="relative isolate overflow-hidden">
+{{!-- Client quotes on the photograph, as stock panels in a column.
+     The section is the whole band and the padding lives inside it, so the
+     photograph reaches the top and bottom edges. When the band's padding was on
+     the section instead, the image covered only the inner 904px of a 1096px band
+     and the remainder showed as bare grey strips above and below the quotes. --}}
+<section class="relative isolate overflow-hidden bg-foreground">
     <img src="{{asset "images/city.webp"}}" alt="" aria-hidden="true" loading="lazy" decoding="async"
          class="absolute inset-0 -z-20 size-full object-cover object-center">
     <div class="absolute inset-0 -z-10 bg-foreground/80" aria-hidden="true"></div>
 
-    <div class="page">
+    <div class="page py-14 sm:py-20 lg:py-24">
         <ul class="mx-auto flex max-w-2xl list-none flex-col gap-5 p-0">
             {{> "quote-card"
                 quote="Op het gebied van financieel en creditmanagement heeft LUCIAN onze bedrijven meermaals zeer succesvol kunnen ondersteunen. De uitgebreide adviezen en ter kennisgevingen helpen de ondernemer om de stand van zaken rondom het bedrijf goed in kaart te brengen, soms ook even realistisch &lsquo;the downside&rsquo; aanstippend. Ik waardeer het enorm wat LUCIAN bijdraagt aan het inzicht in het bedrijf en we proberen deze informatie uit te buiten tot verbetering van onze bedrijven."
@@ -22,4 +26,5 @@
                 role="Administratiekantoor en organisatieadvies"}}
         </ul>
     </div>
-</div>
+
+</section>
