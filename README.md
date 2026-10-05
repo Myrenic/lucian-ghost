@@ -155,6 +155,22 @@ content.
   `robots.txt` allows crawling, which is correct once the site is on the client's
   own domain.
 
+## Checking a deploy
+
+After the pin is bumped and Flux has rolled the pod, crawl what is actually
+served:
+
+```sh
+node scripts/check-pages.mjs https://lucian.<domain>
+```
+
+It reads the sitemap, so it walks every page, and it fails on the things a unit
+test cannot see: template syntax that leaked into the HTML, a template that
+printed `undefined`, an entity escaped twice, a page without a header or footer,
+a page that is not 200, and a 404 path that is not a 404. It exists because a
+malformed comment (`{#-- ... --#}`) printed itself at the top of all 39 interior
+pages and nothing was looking at the rendered output.
+
 ## Search engines
 
 Everything Ghost generates is in place and carries the import's own SEO data:
@@ -221,6 +237,22 @@ Still deliberately different, and worth a decision rather than a guess:
   outline is visible.
 
 ## Differences from the static build, on purpose
+
+## Checking a deploy
+
+After the pin is bumped and Flux has rolled the pod, crawl what is actually
+served:
+
+```sh
+node scripts/check-pages.mjs https://lucian.<domain>
+```
+
+It reads the sitemap, so it walks every page, and it fails on the things a unit
+test cannot see: template syntax that leaked into the HTML, a template that
+printed `undefined`, an entity escaped twice, a page without a header or footer,
+a page that is not 200, and a 404 path that is not a 404. It exists because a
+malformed comment (`{#-- ... --#}`) printed itself at the top of all 39 interior
+pages and nothing was looking at the rendered output.
 
 ## Search engines
 

@@ -1,6 +1,6 @@
 {{!-- The band under the header on interior pages: breadcrumb and title on the
      photograph. Pages are flat in Ghost, so the crumb is the site and the page. --}}
-{#-- Same 460px band as the homepage, so a page and the front page start alike. --#}
+{{!-- Same 460px band as the homepage, so a page and the front page start alike. --}}
 <section class="relative isolate flex min-h-[28.75rem] items-center overflow-hidden bg-foreground">
     {{#if @site.cover_image}}
         <img src="{{img_url @site.cover_image size="xl"}}" alt="" aria-hidden="true"
