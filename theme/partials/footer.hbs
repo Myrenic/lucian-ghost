@@ -37,7 +37,7 @@
                     {{#foreach @site.secondary_navigation}}
                         <p class="m-0">
                             <a class="underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
-                               href="{{url}}"{{#if target}} target="_blank" rel="noopener noreferrer"{{/if}}>{{label}}</a>
+                               href="{{this.url}}"{{#if target}} target="_blank" rel="noopener noreferrer"{{/if}}>{{label}}</a>
                         </p>
                     {{/foreach}}
                 </div>

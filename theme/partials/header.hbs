@@ -9,7 +9,7 @@
 
             <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Hoofdmenu">
                 {{#foreach @site.navigation}}
-                    <a class="btn btn-default btn-ghost" href="{{url}}">{{label}}</a>
+                    <a class="btn btn-default btn-ghost" href="{{this.url}}">{{label}}</a>
                 {{/foreach}}
                 <a class="btn btn-default btn-primary ml-2" href="{{@custom.contact_url}}">Contact</a>
             </nav>
@@ -43,7 +43,7 @@
 
         <nav class="grid gap-1 p-4" aria-label="Hoofdmenu">
             {{#foreach @site.navigation}}
-                <a class="btn btn-ghost h-10 justify-start px-3 text-base font-medium" href="{{url}}">{{label}}</a>
+                <a class="btn btn-ghost h-10 justify-start px-3 text-base font-medium" href="{{this.url}}">{{label}}</a>
             {{/foreach}}
         </nav>
 

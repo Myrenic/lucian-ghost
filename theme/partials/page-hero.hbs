@@ -13,22 +13,12 @@
     <div class="absolute inset-0 -z-10 bg-linear-to-b from-foreground/70 via-foreground/85 to-foreground" aria-hidden="true"></div>
 
     <div class="page py-16 text-center">
-        <nav aria-label="Kruimelpad">
-            <ol class="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-sm text-background/60">
-                <li>
-                    <a class="transition-colors hover:text-background" href="{{@site.url}}">{{@site.title}}</a>
-                </li>
-                <li aria-hidden="true" class="text-background/30">
-                    <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                </li>
-                <li>
-                    <span class="font-medium text-background/90" aria-current="page">{{title}}</span>
-                </li>
-            </ol>
-        </nav>
+        {{!-- No breadcrumb: Ghost's pages are flat, so the trail was the site
+              name followed by the page's own title, which the band then repeated
+              underneath it. --}}
 
         {{#if @page.show_title_and_feature_image}}
-            <h1 class="mx-auto mt-4 max-w-4xl font-heading text-[clamp(1.75rem,3.2vw,2.875rem)] leading-[1.1] font-bold text-white text-balance">
+            <h1 class="mx-auto max-w-4xl font-heading text-[clamp(1.75rem,3.2vw,2.875rem)] leading-[1.1] font-bold text-white text-balance">
                 {{title}}
             </h1>
         {{/if}}
