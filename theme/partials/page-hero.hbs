@@ -12,7 +12,7 @@
     {{/if}}
     <div class="absolute inset-0 -z-10 bg-linear-to-b from-foreground/70 via-foreground/85 to-foreground" aria-hidden="true"></div>
 
-    <div class="page pt-20 pb-10 text-center">
+    <div class="page py-16 text-center">
         <nav aria-label="Kruimelpad">
             <ol class="m-0 flex list-none flex-wrap items-center gap-2 p-0 text-sm text-background/60">
                 <li>
@@ -28,7 +28,7 @@
         </nav>
 
         {{#if @page.show_title_and_feature_image}}
-            <h1 class="mt-4 font-heading text-[clamp(1.75rem,4vw,2.75rem)] leading-[1.1] font-semibold text-white text-balance">
+            <h1 class="mx-auto mt-4 max-w-4xl font-heading text-[clamp(1.75rem,3.2vw,2.875rem)] leading-[1.1] font-bold text-white text-balance">
                 {{title}}
             </h1>
         {{/if}}
