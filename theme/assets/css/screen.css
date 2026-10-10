@@ -44,6 +44,18 @@
   --color-primary: oklch(0.3767 0.1546 29.23);
   --color-primary-foreground: oklch(0.9913 0.0029 84.56);
 
+  /* The client's *second* maroon (#500000), the one their own theme drew its
+     hairlines, blockquote rules and the quote band's overlay with. #800000 is
+     the action colour - buttons, links, icons; this one is for surfaces and
+     rules, so the two are never asked to do the same job. */
+  --color-primary-deep: oklch(0.2708 0.1111 29.23);
+
+  /* The hero's veil, copied value for value from the client's own rule
+     (`.denker::before { background-color: rgba(100,33,33,.63) }`). The two
+     photograph bands are the most prominent surface on every page: they were
+     near-black here, which read as grey against a site whose brand is maroon. */
+  --color-veil-hero: oklch(0.3510 0.0972 23.55);
+
   /* The original's greys (#fff, #efefef, #232323, #767676) with a touch of
      warmth so the bands sit next to that maroon. */
   --color-background: oklch(0.9913 0.0029 84.56);
@@ -64,11 +76,9 @@
   --color-ring: oklch(0.3767 0.1546 29.23);
 
   --radius: 0.625rem;
-  --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
 /* The two layout primitives every band uses. */
@@ -88,12 +98,14 @@
     @apply inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none;
   }
 
+  /* 44px for the call to action and for a bar link: the header is 4.8rem tall
+     and had room, and 32px was under every touch-target guideline in use. */
   .btn-cta {
-    @apply h-11 gap-2 px-5 text-[0.9375rem];
+    @apply h-11 gap-2 px-5 text-base;
   }
 
   .btn-default {
-    @apply h-8 gap-1.5 px-2.5;
+    @apply h-11 gap-1.5 px-2.5;
   }
 
   .btn-primary {
@@ -109,9 +121,32 @@
   }
 
   /* Cards: py-4, a 4px gap, a hairline ring. Same geometry as the static build's
-     Card, so the two render the same height. */
+     Card, so the two render the same height. 15% rather than 10%: at 10% the
+     edge of a white card on the services band was effectively invisible. */
   .card {
-    @apply flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/10;
+    @apply flex flex-col gap-4 overflow-hidden rounded-xl bg-card py-4 text-sm text-card-foreground ring-1 ring-foreground/15;
+  }
+
+  /* The first tab stop on every page. It sits above the sticky header (z-50) and
+     off-screen until it is focused, so a keyboard visitor never has to walk the
+     six menu links to reach the content. */
+  .skip-link {
+    position: fixed;
+    z-index: 60;
+    top: 1rem;
+    left: 1rem;
+    transform: translateY(-200%);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+    padding: 0.625rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: transform 150ms;
+  }
+
+  .skip-link:focus {
+    transform: none;
   }
 }
 
@@ -124,8 +159,19 @@
     border-color: var(--color-border);
   }
 
-  html {
-    scroll-behavior: smooth;
+  /* Smooth scrolling only for visitors who have not asked for less motion. The
+     reduce block below shortens transitions; it never touched this. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* The header is sticky, so an in-page anchor has to stop short of it or the
+     heading it jumped to lands underneath the bar. */
+  section[id],
+  main[id] {
+    scroll-margin-top: 6rem;
   }
 
   body {
@@ -173,7 +219,7 @@
    sub-headings, where the source was split almost evenly - take the body colour.
    ------------------------------------------------------------------------- */
 .gh-content {
-  font-size: 1.0625rem;
+  font-size: 1rem;
   color: var(--color-muted-foreground);
 }
 
@@ -182,28 +228,32 @@
 }
 
 .gh-content h1 {
-  font-size: clamp(1.75rem, 3.4vw, 2.5rem);
-  line-height: 1.12;
-  font-weight: 600;
+  /* 1.4rem: the client's own pages set their opening heading at 22.4px, in the
+     same maroon, bold. */
+  font-size: 1.4rem;
+  line-height: 1.2;
+  font-weight: 700;
   color: var(--color-primary);
   margin: 0 0 1rem;
 }
 
 .gh-content h2 {
-  font-size: clamp(1.25rem, 2.1vw, 1.625rem);
-  line-height: 1.25;
-  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  font-weight: 700;
   color: var(--color-primary);
-  margin: 2.5rem 0 0.75rem;
+  margin: 2.25rem 0 0.75rem;
 }
 
 .gh-content h3,
 .gh-content h4 {
-  font-size: 1.0625rem;
-  line-height: 1.4;
-  font-weight: 500;
-  color: var(--color-foreground);
-  margin: 2.5rem 0 0.75rem;
+  /* The source marked most sub-headings maroon as well; the rebuild had split
+     them between maroon and body colour. */
+  font-size: 1rem;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 2rem 0 0.75rem;
 }
 
 .gh-content > h2:first-child,
@@ -263,13 +313,15 @@
 .gh-content hr {
   margin: 2.25rem 0;
   border: 0;
-  border-top: 1px solid color-mix(in oklch, var(--color-primary) 25%, transparent);
+  /* Rules and blockquote bars take the deeper of the two maroons, the one the
+     client's own stylesheet drew them in (#500000). */
+  border-top: 1px solid color-mix(in oklch, var(--color-primary-deep) 35%, transparent);
 }
 
 .gh-content blockquote {
   margin: 1.5rem 0;
   padding-left: 1rem;
-  border-left: 2px solid color-mix(in oklch, var(--color-primary) 40%, transparent);
+  border-left: 3px solid color-mix(in oklch, var(--color-primary-deep) 70%, transparent);
   font-style: italic;
 }
 

@@ -3,13 +3,18 @@
 <section class="relative isolate overflow-hidden bg-foreground">
     <div class="absolute inset-0 -z-20">
         <img src="{{asset "images/hero-1600.avif"}}" alt="" aria-hidden="true"
-             class="size-full object-cover object-[52%_28%] opacity-40">
+             class="size-full object-cover object-[52%_28%]">
     </div>
-    <div class="absolute inset-0 -z-10 bg-linear-to-b from-foreground/70 via-foreground/85 to-foreground" aria-hidden="true"></div>
+    {{!-- The same veil as the homepage and the interior band: this list is a
+          header, not a content page, so it keeps the shorter padding and the
+          static photograph. --}}
+    <div class="absolute inset-0 -z-10 bg-veil-hero opacity-[0.63]" aria-hidden="true"></div>
 
     <div class="page pt-28 pb-9 sm:pt-32 sm:pb-11">
         {{!-- This template serves the article list and tag archives, and Ghost
               titles a plain collection with the site name, which is not its name.
+              The <title> is corrected in default.hbs by URL, because a
+              routes.yaml collection renders with no context to check.
               {{author.*}} is deliberately absent: Ghost deprecated it in favour of
               {{primary_author.*}}, which a list has no value for either, and an
               author archive is titled correctly by Ghost's own meta title. --}}
@@ -17,7 +22,7 @@
             {{#if tag}}{{tag.name}}{{else}}Artikelen{{/if}}
         </h1>
         {{#if description}}
-            <p class="mt-3 max-w-2xl leading-relaxed text-background/75">{{description}}</p>
+            <p class="mt-3 max-w-2xl leading-relaxed text-background">{{description}}</p>
         {{/if}}
     </div>
 </section>

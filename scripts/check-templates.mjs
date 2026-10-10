@@ -38,6 +38,14 @@ const withoutComments = (source) =>
 for (const file of templates) {
   const source = readFileSync(file, "utf8")
 
+  /* ---- nothing may look like a comment without being one ---------------- */
+  // {# (not preceded by another brace, so {{#if is fine) and --#} are the
+  // shapes a hand-written "comment" takes when it is not Handlebars at all.
+  const stray = source.match(/(?<!\{)\{#|--#\}/)
+  if (stray) {
+    fail(file, `contains "${stray[0]}", which is not Handlebars and prints as text`)
+  }
+
   /* ---- comments have to be what they look like -------------------------- */
   for (const match of source.matchAll(/\{\{!/g)) {
     const rest = source.slice(match.index)

@@ -1,9 +1,14 @@
 <footer class="bg-foreground text-background">
     <div class="page">
-        <div class="grid grid-cols-1 gap-x-8 gap-y-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-x-8 gap-y-10 pt-16 pb-14 sm:grid-cols-2 lg:grid-cols-4">
+            {{!-- The column labels are paragraphs, not headings: they are the
+                  smallest text on the page, and as h2s they put four top-level
+                  headings into the outline after the content. The two columns
+                  that are link lists carry a nav landmark named by their label
+                  instead, which is what a screen reader wants to hear. --}}
             <div>
-                <h2 class="text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">Adres</h2>
-                <div class="mt-4 space-y-1 text-[0.9375rem] leading-relaxed">
+                <p class="m-0 text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">Adres</p>
+                <div class="mt-4 space-y-1 text-sm leading-relaxed">
                     <p class="m-0">{{@custom.contact_name}}</p>
                     <p class="m-0">{{@custom.contact_street}}</p>
                     <p class="m-0">{{@custom.contact_postal_code}}</p>
@@ -11,17 +16,19 @@
                 </div>
             </div>
 
+            {{!-- Label and value are a pair: 4px between them, 16px between pairs.
+                  Even spacing made "Email:" read as another line of the address. --}}
             <div>
-                <h2 class="text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">Contact</h2>
-                <div class="mt-4 space-y-1 text-[0.9375rem] leading-relaxed">
-                    <p class="m-0">Email:</p>
-                    <p class="m-0">
-                        <a class="underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                <p class="m-0 text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">Contact</p>
+                <div class="mt-4 text-sm leading-relaxed">
+                    <p class="m-0 text-background/50">Email</p>
+                    <p class="m-0 mt-1">
+                        <a class="inline-block py-3 underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
                            href="mailto:{{@custom.contact_email}}">{{@custom.contact_email}}</a>
                     </p>
-                    <p class="m-0">Mobiel:</p>
-                    <p class="m-0">
-                        <a class="underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                    <p class="m-0 mt-4 text-background/50">Mobiel</p>
+                    <p class="m-0 mt-1">
+                        <a class="inline-block py-3 underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
                            href="tel:{{@custom.contact_phone}}">{{@custom.contact_phone}}</a>
                     </p>
                 </div>
@@ -29,49 +36,79 @@
 
             {{!-- The second navigation, so the client edits these links in Design
                   rather than in the theme. --}}
-            <div>
-                <h2 class="text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">{{@custom.footer_info_title}}</h2>
-                <div class="mt-4 space-y-1 text-[0.9375rem] leading-relaxed">
+            <nav aria-labelledby="footer-info-title">
+                <p id="footer-info-title" class="m-0 text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">{{@custom.footer_info_title}}</p>
+                <div class="mt-4 space-y-1 text-sm leading-relaxed">
                     {{#foreach @site.secondary_navigation}}
                         <p class="m-0">
-                            <a class="underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
-                               href="{{url}}"{{#if target}} target="_blank" rel="noopener noreferrer"{{/if}}>{{label}}</a>
+                            <a class="inline-block py-3 underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                               href="{{this.url}}"{{#if target}} target="_blank" rel="noopener noreferrer"{{/if}}>{{label}}</a>
                         </p>
                     {{/foreach}}
                 </div>
-            </div>
+            </nav>
+
+            {{!-- Not from Ghost's navigation: the client's own external links, and
+                  Ghost has only the one secondary menu, which is already the Info
+                  column. Changing them is a one-file edit - and they are the
+                  outlet's own URLs, not the tinyurl shorteners the source used,
+                  which read as spam on a page about financial advice. --}}
+            <nav aria-labelledby="footer-trending-title">
+                <p id="footer-trending-title" class="m-0 text-xs font-semibold tracking-[0.14em] text-background/60 uppercase">Trending</p>
+                <div class="mt-4 space-y-1 text-sm leading-relaxed">
+                    <p class="m-0">
+                        <a class="inline-block py-3 underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                           href="https://www.nu.nl/economie/6247235/steeds-meer-ouderen-blijven-werken-ook-na-de-pensioenleeftijd.html" target="_blank" rel="noopener noreferrer">#Steeds meer ouderen blijven werken</a>
+                    </p>
+                    <p class="m-0">
+                        <a class="inline-block py-3 underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                           href="https://nos.nl/l/2460322" target="_blank" rel="noopener noreferrer">#Terugkeer &lsquo;normale&rsquo; energiecontracten</a>
+                    </p>
+                    <p class="m-0">
+                        <a class="inline-block py-3 underline decoration-background/30 underline-offset-4 transition-colors hover:decoration-background"
+                           href="https://nos.nl/l/2460439" target="_blank" rel="noopener noreferrer">#Superrijken; laat ons meer belasting betalen!</a>
+                    </p>
+                </div>
+            </nav>
         </div>
 
-        <hr class="border-0 border-t border-background/15">
-
-        <div class="flex flex-col-reverse items-start justify-between gap-6 py-7 sm:flex-row sm:items-center">
-            <p class="m-0 text-sm text-background/60">By Mike T.</p>
-            <ul class="m-0 flex list-none gap-2 p-0">
-                {{#if @custom.social_facebook}}
-                    <li>
-                        <a class="flex size-9 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
-                           href="{{@custom.social_facebook}}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
-                            {{> "icon-facebook"}}
-                        </a>
-                    </li>
-                {{/if}}
-                {{#if @custom.social_linkedin}}
-                    <li>
-                        <a class="flex size-9 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
-                           href="{{@custom.social_linkedin}}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                            {{> "icon-linkedin"}}
-                        </a>
-                    </li>
-                {{/if}}
-                {{#if @custom.social_twitter}}
-                    <li>
-                        <a class="flex size-9 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
-                           href="{{@custom.social_twitter}}" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                            {{> "icon-twitter"}}
-                        </a>
-                    </li>
-                {{/if}}
-            </ul>
+        <div class="border-t border-background/15">
+            <div class="flex flex-col-reverse items-start justify-between gap-6 py-7 sm:flex-row sm:items-center">
+                {{!-- The legal line a bookkeeping firm's footer is expected to
+                      carry. KvK and BTW-id are two more theme settings, so the
+                      client fills them in under Design and they appear here
+                      without a deploy; empty, the line is just the name and the
+                      place. --}}
+                <p class="m-0 text-sm text-background/60">
+                    &copy; {{@site.title}} &middot; {{@custom.contact_city}}{{#if @custom.contact_kvk}} &middot; KvK {{@custom.contact_kvk}}{{/if}}{{#if @custom.contact_btw}} &middot; BTW {{@custom.contact_btw}}{{/if}}
+                </p>
+                <ul class="m-0 flex list-none gap-2 p-0">
+                    {{#if @custom.social_facebook}}
+                        <li>
+                            <a class="flex size-11 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
+                               href="{{@custom.social_facebook}}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                                {{> "icon-facebook"}}
+                            </a>
+                        </li>
+                    {{/if}}
+                    {{#if @custom.social_linkedin}}
+                        <li>
+                            <a class="flex size-11 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
+                               href="{{@custom.social_linkedin}}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                                {{> "icon-linkedin"}}
+                            </a>
+                        </li>
+                    {{/if}}
+                    {{#if @custom.social_twitter}}
+                        <li>
+                            <a class="flex size-11 items-center justify-center rounded-md text-background/60 ring-1 ring-background/15 transition-colors hover:bg-background/10 hover:text-background"
+                               href="{{@custom.social_twitter}}" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                                {{> "icon-twitter"}}
+                            </a>
+                        </li>
+                    {{/if}}
+                </ul>
+            </div>
         </div>
     </div>
 </footer>

@@ -36,7 +36,9 @@ with their text, headings, lists and internal links intact.
   navigation (the footer's Info column). Both are Ghost settings, so no deploy.
 - **Hero text, statement, contact block, social links**: Settings -> Design ->
   the theme's own settings groups (`homepage`, `site-wide`). The values in
-  `theme/package.json` are only defaults.
+  `theme/package.json` are only defaults. `contact_kvk` and `contact_btw` are two
+  more: empty, and the footer's legal line is the name and the place; filled in,
+  it reads `© LUCIAN · Winschoten · KvK ... · BTW ...`.
 - **Contact page**: slug `contact` picks `page-contact.hbs`, which draws the form.
   Add the message text above the form in the editor and it appears (the template
   renders the form itself, so nothing in the page body is needed for it).
@@ -66,6 +68,20 @@ stylesheet after changing `screen.css` or a template's classes:
 ```sh
 npm --prefix theme run build     # or: npm --prefix theme run watch
 ```
+
+The database and the uploads land in `content/`, which is git-ignored. The
+initContainer also installs two files into that directory, and locally they have
+to be put there by hand or the article list and the old URLs simply do not exist:
+
+```sh
+# routes.yaml goes in settings, redirects.json in data - Ghost reads them from
+# two different places and fails silently if they are in the wrong one.
+mkdir -p content/settings
+jq -r '.data."routes.yaml"'    base/content.configmap.json > content/settings/routes.yaml
+jq -r '.data."redirects.json"' base/content.configmap.json > content/data/redirects.json
+```
+
+Then restart the container (`docker restart ghost-dev`): Ghost reads both at boot.
 
 Note that Ghost 6 sends a sign-in verification code by email, so a second login
 needs working mail (local `Mailpit`, or SMTP in the pod's `lucian-ghost-mail`
@@ -155,6 +171,22 @@ content.
   `robots.txt` allows crawling, which is correct once the site is on the client's
   own domain.
 
+## Checking a deploy
+
+After the pin is bumped and Flux has rolled the pod, crawl what is actually
+served:
+
+```sh
+node scripts/check-pages.mjs https://lucian.<domain>
+```
+
+It reads the sitemap, so it walks every page, and it fails on the things a unit
+test cannot see: template syntax that leaked into the HTML, a template that
+printed `undefined`, an entity escaped twice, a page without a header or footer,
+a page that is not 200, and a 404 path that is not a 404. It exists because a
+malformed comment (`{#-- ... --#}`) printed itself at the top of all 39 interior
+pages and nothing was looking at the rendered output.
+
 ## Search engines
 
 Everything Ghost generates is in place and carries the import's own SEO data:
@@ -185,9 +217,49 @@ Going live on the client's domain, in order:
 5. Check `robots.txt` and `sitemap.xml` answer on the new host, and that a
    handful of old `.html` URLs 301 where they should.
 
-Known gap: `/artikelen/` titles itself with the site name. A collection written
-in `routes.yaml` gets no route context, so no `{{#is}}` can single it out and
-Ghost offers no title of its own - the heading on the page is correct.
+The article list used to title itself with the site name, because a collection
+written in `routes.yaml` renders with an *empty* context and no `{{#is}}` can
+single it out. `{{url}}` is set on every route instead, so `default.hbs` names
+that page by URL: `Artikelen - LUCIAN`. (Ghost's `match` helper compares a bare
+`{{url}}` as an object and always says no; the subexpression - `{{#match (url)}}`
+- is what unwraps it.) Checked on the collection itself, and on the tag, author,
+page and 404 routes, which keep Ghost's own titles.
+
+## How this compares with the client's current site
+
+The first version of this theme modernised the design; the client then compared it
+with the WordPress site they have today and asked for the layout to line up. What
+was measured from `www.luciancs.nl` and matched:
+
+| | their site | here |
+|---|---|---|
+| hero band | 460px, text centred | 460px, text centred |
+| hero heading | 46px, weight 700, white | 46px, weight 700, white |
+| hero veil | `rgba(100,33,33,.63)` over the photograph | the same colour, the same photograph |
+| quote band veil | `.mbr-overlay`: `#500000` at 60% over the city photograph | the same colour, the same photograph |
+| statement band | 24px, muted grey, centred, between two 278px rules | 24px, muted grey, centred, between two 278px rules |
+| article body | 16px, grey | 16px, grey |
+| article headings | maroon, bold (h1 22.4px) | maroon, bold (h1 22.4px, h2 20px, h3 16px) |
+| header height | 77px | 77px |
+| footer columns | Adres, Contact, Info, Trending | the same four |
+
+Still deliberately different, and worth a decision rather than a guess:
+
+- **The chrome.** Their header and footer are flat light grey (#eee) with dark
+  text; this theme keeps a sticky, blurred near-white header and the dark footer
+  from the rebuild. Matching theirs is a colour change in two files.
+- **The service panels.** Theirs are flat and centred - no white panel, no ring,
+  an 80px icon, centred grey text with a maroon title. This theme draws them as
+  cards: a 32px maroon icon and a 16px title over a 14px list, left-aligned, with
+  the lists bottom-aligned so the rules inside the four of them line up.
+- **The hero on interior pages.** Theirs repeats the homepage slogan on every page
+  at 460px and puts the page's own name inside the article. Here the hero names
+  the page, in the same band as the homepage on a phone but 368px from `sm` up: a
+  one-line page title does not need a whole 460px band on all 42 of them, and
+  there is nothing else in that band.
+- **Content heading sizes.** Their h2 and h3 are the same 16px, which leaves
+  headings indistinguishable from body text. This theme keeps h2 at 20px so the
+  outline is visible.
 
 ## Differences from the static build, on purpose
 
@@ -196,8 +268,8 @@ Ghost offers no title of its own - the heading on the page is correct.
   the body when it repeats the title, so nothing is said twice.
 - Content headings: the source marked 216 of its 258 headings maroon and left the
   rest dark, and the split cannot survive Ghost's editor (it strips classes and
-  inline styles). `h1`/`h2` - the section headings - are maroon, `h3`/`h4` take
-  the body colour.
+  inline styles). `h1`/`h2` and the smaller `h3`/`h4` are all maroon, which is
+  what most of the source looked like anyway.
 - Text alignment, per-heading font sizes and the maroon runs inside paragraphs
   are lost in the same way. The writer can re-align in the editor.
 - The homepage gains a Kenniscentrum band listing the three newest posts, once
@@ -205,3 +277,8 @@ Ghost offers no title of its own - the heading on the page is correct.
   blog holds one artefact page, not articles.
 - 404 pages, the article list at `/artikelen/` and the contact form's mailto
   behaviour are new; the form still does not store anything anywhere.
+- Interaction the static build did not have: a skip link as the page's first tab
+  stop, 44px touch targets for the header button, the drawer links, the footer
+  links and the social icons, and the menu from `lg` rather than `md` - the seven
+  items need 716px, so at 768-819 a bar wider than the viewport panned the whole
+  page sideways. A keyboard-focused service card draws the ring around the panel.

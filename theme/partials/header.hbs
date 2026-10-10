@@ -1,18 +1,26 @@
 <header class="sticky top-0 z-50 bg-background/80 backdrop-blur-md">
-    <div class="page">
-        <div class="flex h-16 items-center gap-1">
-            <a class="mr-3 font-heading text-[0.9375rem] font-semibold tracking-[0.1em] text-foreground"
+    {{!-- Full width, not the page's max-w-6xl column: the client read the
+          centred column as the menu not spanning the bar, with the Contact
+          button left floating 265px from the right edge at 1440.
+
+          The menu appears from `lg`, not `md`: the seven items need 716px and
+          the bar has the wordmark and its padding on top of that, so at 768-819
+          (iPad portrait) the bar was wider than the viewport and the whole page
+          panned sideways. The drawer takes over below 1024. --}}
+    <div class="w-full px-5 sm:px-6 lg:px-8">
+        <div class="flex h-[4.8rem] items-center gap-1">
+            <a class="mr-3 inline-flex h-11 items-center font-heading text-[0.9375rem] font-semibold tracking-[0.1em] text-foreground"
                href="{{@site.url}}">{{@site.title}}</a>
 
-            <nav class="ml-auto hidden items-center gap-1 md:flex" aria-label="Hoofdmenu">
+            <nav class="ml-auto hidden items-center gap-1 lg:flex" aria-label="Hoofdmenu">
                 {{#foreach @site.navigation}}
-                    <a class="btn btn-default btn-ghost" href="{{url}}">{{label}}</a>
+                    <a class="btn btn-default btn-ghost" href="{{this.url}}">{{label}}</a>
                 {{/foreach}}
                 <a class="btn btn-default btn-primary ml-2" href="{{@custom.contact_url}}">Contact</a>
             </nav>
 
             <button type="button" id="menu-toggle"
-                    class="ml-auto inline-flex size-8 items-center justify-center rounded-lg text-foreground hover:bg-secondary md:hidden"
+                    class="ml-auto inline-flex size-11 items-center justify-center rounded-lg text-foreground hover:bg-secondary lg:hidden"
                     aria-label="Menu" aria-expanded="false" aria-controls="site-menu">
                 <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" aria-hidden="true">
@@ -24,12 +32,12 @@
 </header>
 
 {{!-- The small-screen menu. No framework for this: one button, one panel. --}}
-<div id="site-menu" class="fixed inset-0 z-40 hidden md:hidden">
+<div id="site-menu" class="fixed inset-0 z-40 hidden lg:hidden">
     <div class="absolute inset-0 bg-foreground/40" data-menu-close></div>
     <div class="absolute inset-y-0 right-0 w-3/4 max-w-sm bg-background shadow-xl">
-        <div class="flex h-16 items-center px-4">
+        <div class="flex h-[4.8rem] items-center px-4">
             <span class="font-semibold tracking-[0.1em]">{{@site.title}}</span>
-            <button type="button" class="ml-auto inline-flex size-8 items-center justify-center rounded-lg hover:bg-secondary"
+            <button type="button" class="ml-auto inline-flex size-11 items-center justify-center rounded-lg hover:bg-secondary"
                     aria-label="Menu sluiten" data-menu-close>
                 <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" aria-hidden="true">
@@ -40,12 +48,12 @@
 
         <nav class="grid gap-1 p-4" aria-label="Hoofdmenu">
             {{#foreach @site.navigation}}
-                <a class="btn btn-ghost h-10 justify-start px-3 text-base font-medium" href="{{url}}">{{label}}</a>
+                <a class="btn btn-ghost h-11 justify-start px-3 text-base font-medium" href="{{this.url}}">{{label}}</a>
             {{/foreach}}
         </nav>
 
         <div class="absolute inset-x-0 bottom-0 grid gap-3 border-t border-border p-4">
-            <a class="btn btn-ghost h-10 justify-start px-3 font-medium"
+            <a class="btn btn-ghost h-11 justify-start px-3 font-medium"
                href="tel:{{@custom.contact_phone}}">
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -53,7 +61,7 @@
                 </svg>
                 {{@custom.contact_phone}}
             </a>
-            <a class="btn btn-ghost h-10 justify-start px-3 font-medium"
+            <a class="btn btn-ghost h-11 justify-start px-3 font-medium"
                href="mailto:{{@custom.contact_email}}">
                 <svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

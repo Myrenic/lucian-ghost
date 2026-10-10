@@ -286,7 +286,17 @@ async function syncSettings({ hero, og, terms }) {
     // Ghost's default cover is its own stock image.
     { key: "cover_image", value: hero },
     { key: "og_image", value: og },
-    { key: "navigation", value: JSON.stringify(site.nav.map((item) => ({ label: item.label, url: urlFor(item.href) }))) },
+    // Contact is left out: the theme renders it as the button at the end of the
+    // bar, which is what the rebuild did. Including it here put the word twice
+    // in the menu.
+    {
+      key: "navigation",
+      value: JSON.stringify(
+        site.nav
+          .filter((item) => item.href !== "/contact.html")
+          .map((item) => ({ label: item.label, url: urlFor(item.href) })),
+      ),
+    },
     {
       key: "secondary_navigation",
       value: JSON.stringify([

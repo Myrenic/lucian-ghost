@@ -1,39 +1,43 @@
 {{!-- The four service panels, as on the original homepage. One link per panel so
      the whole thing is a target, and a 1/2/4 grid: the original laid four
      col-lg-4 cards in a row that did not wrap and overflowed the viewport.
-     Card titles lead to the section page each panel describes.
+     Four across only from `xl`: at 1024-1279 a quarter of the column is 228px,
+     which wrapped every lead onto four lines. Two by two through that range
+     reads better and keeps the panels under their own text. Card titles lead to
+     the section page each panel describes.
 
-     Each lead is two lines in the source ("ontzorger op administratief gebied"
-     on its own line) - the imported text had lost the break, so it is restored
-     here rather than left as one run-on sentence. --}}
+     Each lead was two lines in the source and the imported text had lost the
+     break; the <br> that restored it is gone again, because a hard break inside a
+     228px card double-wraps. The first line is its own block instead, so it wraps
+     as a phrase and the sentence under it starts where it always did. --}}
 <div class="page">
-    <ul class="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 lg:grid-cols-4">
+    <ul class="grid list-none grid-cols-1 gap-4 p-0 sm:grid-cols-2 xl:grid-cols-4">
         {{> "service-card"
             icon="briefcase"
             href="/administratiekantoor/"
             title="Administratiekantoor"
-            lead="ontzorger op administratief gebied<br>hier kunt u terecht met vrijwel al uw hulpvragen."
+            lead='<span class="block">ontzorger op administratief gebied</span>hier kunt u terecht met vrijwel al uw hulpvragen.'
             items="<li>Financiële administratie</li><li>Bedrijfseconomisch advies</li><li>AO/IB</li><li>Quickscan</li>"}}
 
         {{> "service-card"
             icon="idea"
             href="/belastingadviseur/"
             title="Belastingadviseur"
-            lead="ontzorger op het gebied van belastingen<br>hier kunt u terecht met vrijwel al uw hulpvragen."
+            lead='<span class="block">ontzorger op het gebied van belastingen</span>hier kunt u terecht met vrijwel al uw hulpvragen.'
             items="<li>Inkomstenbelasting</li><li>Vennootschapsbelasting</li><li>Omzetbelasting</li><li>Erf-en schenkbelasting</li>"}}
 
         {{> "service-card"
             icon="growing-chart"
             href="/financiele-hulp/"
             title="Financiële hulp"
-            lead="ontzorger u op het gebied van financiën<br>hier kunt u terecht met vrijwel al uw hulpvragen."
+            lead='<span class="block">ontzorger u op het gebied van financiën</span>hier kunt u terecht met vrijwel al uw hulpvragen.'
             items="<li>Budgetbeheer-en coaching</li><li>Schuldhulpverlening</li><li>Toeslagen en tegemoetkomingen</li><li>Financiële planning</li>"}}
 
         {{> "service-card"
             icon="setting"
             href="/ondersteuning/"
             title="Ondersteuning"
-            lead="ontzorger op operationeel en digitaal vlak<br>hier kunt u terecht met vrijwel al uw randzaken."
+            lead='<span class="block">ontzorger op operationeel en digitaal vlak</span>hier kunt u terecht met vrijwel al uw randzaken.'
             items="<li>Operationele hulp</li><li>Websitebeheer &amp; onderhoud</li><li>Search engine optimalisatie</li><li>Social media support</li>"}}
     </ul>
 </div>

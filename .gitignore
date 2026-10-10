@@ -1,2 +1,6 @@
 node_modules/
 .DS_Store
+
+# The local Ghost from "Working on the theme": its SQLite database and a copy of
+# the client's uploads. Development state, not source.
+content/
