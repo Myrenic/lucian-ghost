@@ -267,6 +267,13 @@ async function syncUploads() {
 async function syncSettings({ hero, og, terms }) {
   const home = pagesByPath.get("/")
 
+  // Ghost builds meta-article:publisher as https://www.facebook.com/<value>, so
+  // the setting takes the handle rather than the URL the client's site links to.
+  const facebookHandle = (site.social.find((s) => s.name === "facebook")?.href ?? "").replace(
+    /^https?:\/\/(?:www\.)?facebook\.com\//,
+    "",
+  )
+
   const settings = [
     { key: "title", value: site.brand },
     { key: "description", value: home?.description ?? "" },
@@ -306,7 +313,11 @@ async function syncSettings({ hero, og, terms }) {
         { label: "Disclaimer", url: urlFor("/info/disclaimer.html") },
       ]),
     },
-    { key: "facebook", value: site.social.find((s) => s.name === "facebook")?.href ?? "" },
+    // Ghost builds meta-article:publisher as https://www.facebook.com/<value>,
+    // so the handle goes in, not the URL: storing the URL published
+    // "facebook.com/https://www.facebook.com/lucianwinschoten". twitter and
+    // linkedin take the whole URL and render as they are.
+    { key: "facebook", value: facebookHandle },
     { key: "twitter", value: site.social.find((s) => s.name === "twitter")?.href ?? "" },
     { key: "linkedin", value: site.social.find((s) => s.name === "linkedin")?.href ?? "" },
   ]
