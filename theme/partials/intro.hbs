@@ -1,0 +1,46 @@
+{{!-- Who is behind the site, on the homepage between the statement and the
+     services: the portrait, the client's own introduction, and a way to his
+     story. It exists because the rest of the front page is claims - four panels
+     and three quotes - and a one-man firm's strongest argument is that the
+     person answering the phone is the person doing the work.
+
+     The heading and the text are theme settings, so the client edits them under
+     Design; the defaults are his own sentences from the Over page. The portrait
+     is a setting too, and falls back to the photograph that travels with the
+     theme. That one is 447px, which is why it is drawn at 208: it is a LinkedIn
+     profile picture, and asking for the original (or a shoot) is what would let
+     it be larger than this. --}}
+<section class="band bg-background">
+    <div class="page">
+        <div class="mx-auto flex max-w-4xl flex-col items-center gap-8 sm:flex-row sm:gap-10">
+            {{#if @custom.portrait}}
+                <img src="{{img_url @custom.portrait size="s" format="webp"}}"
+                     srcset="{{img_url @custom.portrait size="xs" format="webp"}} 320w, {{img_url @custom.portrait size="s" format="webp"}} 640w"
+                     sizes="208px" width="208" height="208" loading="lazy" decoding="async"
+                     alt="{{@custom.contact_name}}"
+                     class="size-52 shrink-0 rounded-2xl object-cover object-center ring-1 ring-foreground/15">
+            {{else}}
+                <img src="{{asset "images/andries-447.webp"}}"
+                     srcset="{{asset "images/andries-224.webp"}} 224w, {{asset "images/andries-447.webp"}} 447w"
+                     sizes="208px" width="208" height="208" loading="lazy" decoding="async"
+                     alt="{{@custom.contact_name}}"
+                     class="size-52 shrink-0 rounded-2xl object-cover object-center ring-1 ring-foreground/15">
+            {{/if}}
+
+            <div class="text-center sm:text-left">
+                <h2 class="font-heading text-[clamp(1.375rem,2.6vw,1.75rem)] leading-[1.25] font-semibold text-foreground text-balance">
+                    {{@custom.intro_heading}}
+                </h2>
+                <p class="mt-4 leading-relaxed text-muted-foreground">
+                    {{@custom.intro_text}}
+                </p>
+                {{!-- The one page in this menu that is about him rather than
+                      about a service. Ghost nests nothing, so the URL is fixed. --}}
+                <p class="mt-6">
+                    <a class="inline-flex h-11 items-center font-medium text-primary underline decoration-primary/35 underline-offset-4 hover:decoration-primary"
+                       href="/over/">Lees mijn verhaal</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

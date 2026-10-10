@@ -1,0 +1,17 @@
+{{!-- The one loud thing on the page, and it is his sentence rather than ours:
+     the Over page is a long, warm, slightly rambling story, and this is the line
+     from it that says what he is about. It closes the page before the footer, on
+     the deeper maroon the client's own theme used for its rules and veils.
+
+     The words are a theme setting, so he can change or empty them - an empty
+     quote renders an empty band, which is why it is worth saying in Design that
+     this one is optional. --}}
+{{#if @custom.over_quote}}
+<section class="band bg-primary-deep">
+    <div class="page">
+        <blockquote class="m-0 mx-auto max-w-3xl text-center font-heading text-[clamp(1.25rem,2.4vw,1.75rem)] leading-[1.35] font-medium text-background text-balance">
+            &ldquo;{{@custom.over_quote}}&rdquo;
+        </blockquote>
+    </div>
+</section>
+{{/if}}

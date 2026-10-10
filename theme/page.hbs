@@ -6,9 +6,21 @@
 
 <section class="band bg-background">
     <div class="page">
+        {{!-- The one page here that is about a person rather than a service:
+              his portrait above the story, and his own sentence under it. Both
+              are keyed on the URL, because a page is the only context this can
+              be read from. --}}
+        {{#match (url) "=" "/over/"}}
+            {{> "portrait"}}
+        {{/match}}
+
         <article class="gh-content mx-auto w-full max-w-3xl">
             {{content}}
         </article>
     </div>
 </section>
+
+{{#match (url) "=" "/over/"}}
+    {{> "pull-quote"}}
+{{/match}}
 {{/post}}

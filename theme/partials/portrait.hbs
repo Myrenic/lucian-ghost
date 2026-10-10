@@ -1,0 +1,22 @@
+{{!-- The face that goes with the story, at the top of the Over page.
+
+     Drawn at 240px because the photograph that travels with the theme is 447px
+     (a LinkedIn profile picture): 240 is what that survives at 2x, and asking
+     Andries for the original - or shooting two or three frames at his desk - is
+     what would let it be larger. The client can replace it under Design. --}}
+<figure class="mx-auto mb-10 w-full max-w-[15rem]">
+    {{#if @custom.portrait}}
+        <img src="{{img_url @custom.portrait size="s" format="webp"}}"
+             srcset="{{img_url @custom.portrait size="xs" format="webp"}} 320w, {{img_url @custom.portrait size="s" format="webp"}} 640w"
+             sizes="240px" width="240" height="240" loading="lazy" decoding="async"
+             alt="{{@custom.contact_name}}"
+             class="w-full rounded-2xl object-cover object-center ring-1 ring-foreground/15">
+    {{else}}
+        <img src="{{asset "images/andries-447.webp"}}"
+             srcset="{{asset "images/andries-224.webp"}} 224w, {{asset "images/andries-447.webp"}} 447w"
+             sizes="240px" width="240" height="240" loading="lazy" decoding="async"
+             alt="{{@custom.contact_name}}"
+             class="w-full rounded-2xl object-cover object-center ring-1 ring-foreground/15">
+    {{/if}}
+    <figcaption class="mt-3 text-center text-sm text-muted-foreground">{{@custom.contact_name}}</figcaption>
+</figure>
