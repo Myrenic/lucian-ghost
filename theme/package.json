@@ -101,12 +101,23 @@
       "contact_kvk": {
         "type": "text",
         "group": "site-wide",
-        "description": "KvK number, shown in the footer's legal line when set"
+        "default": "01161939",
+        "description": "KvK number (Handelsregister), shown in the footer's legal line"
       },
       "contact_btw": {
         "type": "text",
         "group": "site-wide",
         "description": "BTW-id, shown in the footer's legal line when set"
+      },
+      "intro_heading": {
+        "type": "text",
+        "group": "homepage",
+        "default": "Wanneer je zaken doet met LUCIAN, doe je zaken met Andries Luchies!"
+      },
+      "intro_text": {
+        "type": "text",
+        "group": "homepage",
+        "default": "Een nuchtere, eerlijke en ambitieuze noorderling, geboren in 1975. Sinds 2009 doe ik de administratie, de belastingen en de financiële planning voor ondernemers en particulieren in Winschoten en omstreken - nog altijd met veel plezier."
       },
       "social_facebook": {
         "type": "text",
@@ -119,6 +130,17 @@
       "social_twitter": {
         "type": "text",
         "group": "site-wide"
+      },
+      "portrait": {
+        "type": "image",
+        "group": "homepage",
+        "description": "The photograph of Andries, on the homepage and the Over page; the theme's own is the default"
+      },
+      "over_quote": {
+        "type": "text",
+        "group": "site-wide",
+        "default": "Je leeft immers niet om te werken, maar werkt om te leven!",
+        "description": "The one line, in his own words, that the Over page closes with"
       }
     }
   }

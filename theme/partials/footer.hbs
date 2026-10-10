@@ -75,12 +75,15 @@
         <div class="border-t border-background/15">
             <div class="flex flex-col-reverse items-start justify-between gap-6 py-7 sm:flex-row sm:items-center">
                 {{!-- The legal line a bookkeeping firm's footer is expected to
-                      carry. KvK and BTW-id are two more theme settings, so the
-                      client fills them in under Design and they appear here
-                      without a deploy; empty, the line is just the name and the
-                      place. --}}
+                      carry. KvK and BTW-id are theme settings, so the client can
+                      change them under Design without a deploy - and the number
+                      here is the registered one from the Handelsregister, held in
+                      the template as well as the setting because Ghost keeps a
+                      stored empty value once a setting exists, so a default
+                      changed in package.json never reaches a theme that is
+                      already active. --}}
                 <p class="m-0 text-sm text-background/60">
-                    &copy; {{@site.title}} &middot; {{@custom.contact_city}}{{#if @custom.contact_kvk}} &middot; KvK {{@custom.contact_kvk}}{{/if}}{{#if @custom.contact_btw}} &middot; BTW {{@custom.contact_btw}}{{/if}}
+                    &copy; {{@site.title}} &middot; {{@custom.contact_city}} &middot; KvK {{#if @custom.contact_kvk}}{{@custom.contact_kvk}}{{else}}01161939{{/if}}{{#if @custom.contact_btw}} &middot; BTW {{@custom.contact_btw}}{{/if}}
                 </p>
                 <ul class="m-0 flex list-none gap-2 p-0">
                     {{#if @custom.social_facebook}}

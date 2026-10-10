@@ -37,8 +37,15 @@ with their text, headings, lists and internal links intact.
 - **Hero text, statement, contact block, social links**: Settings -> Design ->
   the theme's own settings groups (`homepage`, `site-wide`). The values in
   `theme/package.json` are only defaults. `contact_kvk` and `contact_btw` are two
-  more: empty, and the footer's legal line is the name and the place; filled in,
-  it reads `© LUCIAN · Winschoten · KvK ... · BTW ...`.
+  more: the footer's legal line reads `© LUCIAN · Winschoten · KvK ... · BTW ...`
+  and the KvK number is filled in (01161939, from the Handelsregister); the
+  BTW-id is not, and it is the one number a visitor can check against an invoice.
+- **The person on the homepage, and the Over page**: `intro_heading`,
+  `intro_text` and `portrait` (the photograph, used in both places) are settings,
+  as is `over_quote`, the line the Over page closes with. The defaults are
+  Andries's own sentences from the Over page, so the client can rewrite them
+  under Design without a deploy - and an empty `over_quote` removes that band
+  rather than leaving it blank.
 - **Contact page**: slug `contact` picks `page-contact.hbs`, which draws the form.
   Add the message text above the form in the editor and it appears (the template
   renders the form itself, so nothing in the page body is needed for it).
@@ -282,3 +289,10 @@ Still deliberately different, and worth a decision rather than a guess:
   links and the social icons, and the menu from `lg` rather than `md` - the seven
   items need 716px, so at 768-819 a bar wider than the viewport panned the whole
   page sideways. A keyboard-focused service card draws the ring around the panel.
+- The homepage introduces the person the rest of it sells: a portrait, his own
+  sentence as the heading, three lines of who he is and what he has done since
+  2009, and a way to the story. The Over page carries the same portrait above the
+  text and closes on one line of his, on the deeper maroon. The photograph that
+  travels with the theme is 447px - a LinkedIn profile picture - which is why it
+  is drawn at 208 and 240: replacing it with the original, or with two or three
+  frames at his desk, is what would let it be larger.
