@@ -14,10 +14,22 @@
   var menu = document.getElementById("site-menu");
 
   if (toggle && menu) {
+    /* Everything the drawer covers, so it can leave the tab order while the
+       panel is open. Without this, tabbing past the last panel link walked into
+       the content underneath - which is behind the overlay and invisible. */
+    var behind = document.querySelectorAll("main, footer, .skip-link");
+    var setBehindInert = function (inert) {
+      Array.prototype.forEach.call(behind, function (el) {
+        if (inert) el.setAttribute("inert", "");
+        else el.removeAttribute("inert");
+      });
+    };
+
     var setOpen = function (open) {
       menu.classList.toggle("hidden", !open);
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       document.documentElement.classList.toggle("overflow-hidden", open);
+      setBehindInert(open);
       if (open) {
         var first = menu.querySelector("a, button");
         if (first) first.focus();

@@ -98,6 +98,16 @@
         "group": "site-wide",
         "default": "Info"
       },
+      "contact_kvk": {
+        "type": "text",
+        "group": "site-wide",
+        "description": "KvK number, shown in the footer's legal line when set"
+      },
+      "contact_btw": {
+        "type": "text",
+        "group": "site-wide",
+        "description": "BTW-id, shown in the footer's legal line when set"
+      },
       "social_facebook": {
         "type": "text",
         "group": "site-wide"

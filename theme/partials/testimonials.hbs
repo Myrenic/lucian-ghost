@@ -6,10 +6,13 @@
 <section class="relative isolate overflow-hidden bg-foreground">
     <img src="{{asset "images/city.webp"}}" alt="" aria-hidden="true" loading="lazy" decoding="async"
          class="absolute inset-0 -z-20 size-full object-cover object-center">
-    <div class="absolute inset-0 -z-10 bg-foreground/80" aria-hidden="true"></div>
+    {{!-- The client's own overlay on this band, copied value for value: a 60%
+          wash of #500000 (.mbr-overlay in their stylesheet), not the 80% black
+          that made a maroon band grey. --}}
+    <div class="absolute inset-0 -z-10 bg-primary-deep opacity-60" aria-hidden="true"></div>
 
-    <div class="page py-14 sm:py-20 lg:py-24">
-        <ul class="mx-auto flex max-w-2xl list-none flex-col gap-5 p-0">
+    <div class="page py-12 sm:py-20 lg:py-24">
+        <ul class="mx-auto flex max-w-2xl list-none flex-col gap-4 p-0 sm:gap-5">
             {{> "quote-card"
                 quote="Op het gebied van financieel en creditmanagement heeft LUCIAN onze bedrijven meermaals zeer succesvol kunnen ondersteunen. De uitgebreide adviezen en ter kennisgevingen helpen de ondernemer om de stand van zaken rondom het bedrijf goed in kaart te brengen, soms ook even realistisch &lsquo;the downside&rsquo; aanstippend. Ik waardeer het enorm wat LUCIAN bijdraagt aan het inzicht in het bedrijf en we proberen deze informatie uit te buiten tot verbetering van onze bedrijven."
                 name="Compudivision & Canome B.V."

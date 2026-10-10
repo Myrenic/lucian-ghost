@@ -6,12 +6,15 @@
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#800000">
     {{! The homepage needs a title of its own: the client's, not the site name.
-        A custom collection gets none from Ghost - one written in routes.yaml has
-        no route context, so meta_title is the site name there, and no is-check
-        can single it out. The heading in index.hbs is where that page names
-        itself. (No mustaches in this comment: Handlebars ends a comment at the
-        first closing brace pair, and anything after it becomes template again.) }}
-    <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{meta_title}}{{/is}}</title>
+        The article list needs one too - and there is no context to key on: a
+        collection written in routes.yaml renders with an *empty* context (the
+        debug in this theme printed "home,index" for the front page, "tag" for a
+        tag archive, and nothing at all for /artikelen/), so no is-check can see
+        it and meta_title is the site name there. `url` is set on every route, so
+        the list is named by its URL instead. (No mustaches in this comment:
+        Handlebars ends a comment at the first closing brace pair, and anything
+        after it becomes template again.) }}
+    <title>{{#is "home"}}{{@custom.home_meta_title}}{{else}}{{#match (url) "=" "/artikelen/"}}Artikelen - {{@site.title}}{{else}}{{meta_title}}{{/match}}{{/is}}</title>
 
     {{!-- Ghost writes the canonical, the description, the Open Graph and
           Twitter tags and the structured data here.
@@ -31,9 +34,13 @@
 </head>
 <body class="{{body_class}} font-sans">
 
+    {{!-- The first tab stop on the page: the header carries six links and a
+          button, and this is the way past them. --}}
+    <a class="skip-link" href="#main">Naar de inhoud</a>
+
     {{> "header"}}
 
-    <main>
+    <main id="main" tabindex="-1">
         {{{body}}}
     </main>
 
